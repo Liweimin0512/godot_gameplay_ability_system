@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://4qrbio7qgvtp"]
+
+[ext_resource type="Script" uid="uid://5q73wh1o7i1" path="res://addons/godot_gameplay_ability_system/source/editor/effect_editor_node.gd" id="1_tr3ii"]
+
+[node name="EffectEditorNode" type="Node"]
+script = ExtResource("1_tr3ii")
+effect_config_path = "res://resources/data/abilities/buff_effects/test.json"
+metadata/_custom_type_script = ExtResource("1_tr3ii")
+
+[node name="EffectEditorNode" type="Node" parent="."]
+script = ExtResource("1_tr3ii")
+metadata/_custom_type_script = ExtResource("1_tr3ii")

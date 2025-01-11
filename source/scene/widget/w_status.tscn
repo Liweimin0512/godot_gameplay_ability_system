@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://pc61en05ero1"]
+
+[ext_resource type="Script" uid="uid://4fbkhy1m2avc" path="res://addons/godot_gameplay_ability_system/source/scene/widget/w_status.gd" id="1_b15e4"]
+[ext_resource type="PackedScene" uid="uid://bvuv7l4u3iuif" path="res://addons/godot_gameplay_ability_system/source/scene/widget/w_ability_resource.tscn" id="1_n7bnr"]
+
+[node name="W_Status" type="MarginContainer"]
+custom_minimum_size = Vector2(0, 34)
+offset_right = 56.0
+offset_bottom = 10.0
+script = ExtResource("1_b15e4")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="W_AbilityResource" parent="VBoxContainer" instance=ExtResource("1_n7bnr")]
+custom_minimum_size = Vector2(56, 10)
+layout_mode = 2
+
+[node name="W_BuffContainer" type="MarginContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/W_BuffContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 5

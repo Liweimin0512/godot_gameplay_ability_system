@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=3 uid="uid://bwi4swyerhcbg"]
+
+[ext_resource type="Script" uid="uid://dhobnt3buvn5n" path="res://addons/godot_gameplay_ability_system/source/scene/widget/w_buff.gd" id="1_fd1xj"]
+
+[node name="W_Buff" type="MarginContainer"]
+custom_minimum_size = Vector2(14, 14)
+offset_right = 12.0
+offset_bottom = 12.0
+size_flags_vertical = 4
+script = ExtResource("1_fd1xj")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 2
+expand_mode = 1
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 7
+text = "99"
+horizontal_alignment = 2
+vertical_alignment = 2

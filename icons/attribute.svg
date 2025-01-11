@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   version="1.1"
+   xmlns="http://www.w3.org/2000/svg">
+  
+  <!-- 六边形背景 -->
+  <path
+     d="M 8,2 L 13.5,5 L 13.5,11 L 8,14 L 2.5,11 L 2.5,5 Z"
+     fill="none"
+     stroke="#fc7f7f"
+     stroke-width="1.5"/>
+  
+  <!-- 加号符号 -->
+  <path
+     d="M 8,5 L 8,11 M 5,8 L 11,8"
+     stroke="#fc7f7f"
+     stroke-width="1.5"
+     stroke-linecap="round"/>
+</svg> 
