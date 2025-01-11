@@ -24,22 +24,12 @@ signal ability_trigger_failed(ability: Ability, context: Dictionary)
 signal game_event_handled(event_name: StringName, event_context: Dictionary)
 
 ## 组件初始化
-func initialization(
-		ability_set : Array[Ability] = [],
-		ability_context: Dictionary = {}
-		) -> void:
+func initialization(ability_set : Array[Ability] = [], ability_context: Dictionary = {}) -> void:
 	for ability in ability_set:
-		apply_ability(ability, ability_context)
+		apply_ability(ability, ability_context.duplicate(true))
 		print("ability_component: {0} 初始化".format([owner.to_string()]))
 
 #region 技能相关
-
-## 获取相同名称的技能
-func get_same_ability(ability: Ability) -> Ability:
-	for a in _abilities:
-		if a.ability_name == ability.ability_name and a.ability_tags == ability.ability_tags:
-			return a
-	return null
 
 ## 获取全部技能
 func get_abilities(ability_tags: Array[StringName] = []) -> Array[Ability]:
@@ -51,6 +41,13 @@ func get_abilities(ability_tags: Array[StringName] = []) -> Array[Ability]:
 			abilities.append(ability)
 	return abilities
 
+## 获取相同名称的技能
+func get_same_ability(ability: Ability) -> Ability:
+	for a in _abilities:
+		if a.ability_name == ability.ability_name and a.ability_tags == ability.ability_tags:
+			return a
+	return null
+
 ## 应用技能
 func apply_ability(ability: Ability, ability_context: Dictionary) -> void:
 	ability_context.merge({
@@ -60,11 +57,11 @@ func apply_ability(ability: Ability, ability_context: Dictionary) -> void:
 	ability.cast_started.connect(_on_ability_cast_started.bind(ability))
 	ability.cast_finished.connect(_on_ability_cast_finished.bind(ability))
 	ability.removed.connect(_on_ability_removed.bind(ability))
-	ability.apply(self, ability_context)
+	ability.apply(ability_context)
 	_abilities.append(ability)
 
 ## 移除技能
-func remove_ability(ability: Ability) -> void:
+func remove_ability(ability: Ability, context: Dictionary) -> void:
 	if ability.applied.is_connected(_on_ability_applied):
 		ability.applied.disconnect(_on_ability_applied.bind(ability))
 	if ability.cast_started.is_connected(_on_ability_cast_started):
@@ -73,7 +70,7 @@ func remove_ability(ability: Ability) -> void:
 		ability.cast_finished.disconnect(_on_ability_cast_finished.bind(ability))
 	if ability.removed.is_connected(_on_ability_removed):
 		ability.removed.disconnect(_on_ability_removed.bind(ability))
-	ability.remove()
+	ability.remove(context)
 	_abilities.erase(ability)
 
 ## 尝试释放技能
@@ -123,6 +120,8 @@ func remove_ability_trigger(trigger_type: StringName, trigger: DecoratorTriggerN
 
 #endregion
 
+#region 事件处理
+
 func _on_ability_applied(context: Dictionary, ability: Ability) -> void:
 	ability_applied.emit(ability, context)
 
@@ -134,6 +133,8 @@ func _on_ability_cast_started(context: Dictionary, ability: Ability) -> void:
 
 func _on_ability_cast_finished(context: Dictionary, ability: Ability) -> void:
 	ability_cast_finished.emit(ability, context)
+
+#endregion
 
 func _to_string() -> String:
 	return owner.to_string()

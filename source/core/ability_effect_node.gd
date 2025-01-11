@@ -48,7 +48,7 @@ func execute(context: Dictionary) -> STATUS:
 	return state
 
 ## 撤销
-func revoke() -> STATUS:
+func revoke(context: Dictionary) -> STATUS:
 	if not enabled: return STATUS.FAILURE
 	# 如果不能撤销（没有执行过），则直接成功
 	if not is_executed: return STATUS.SUCCESS

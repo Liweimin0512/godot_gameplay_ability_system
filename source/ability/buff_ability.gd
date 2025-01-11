@@ -23,35 +23,38 @@ signal value_changed(value: int)
 func _init() -> void:
 	ability_tags.append("buff")
 	is_auto_cast = true
+	resource_local_to_scene = true
 
 ## 应用技能
 func _apply(context: Dictionary) -> void:
-	var ability_component : AbilityComponent = _context.get("ability_component")
+	is_auto_cast = true
+	var ability_component : AbilityComponent = context.get("ability_component")
 	if not ability_component:
 		GASLogger.error("can not found ability_component in context! {0}".format([self]))
+		return
 	var old : BuffAbility = ability_component.get_same_ability(self)
 	if old:
 		if old.can_stack:
 			_merge_buff(old, self)
-			GASLogger.info("合并BUFF：{0}".format([self]))
-		old.remove()
+			GASLogger.info("merge buff: {0}".format([self]))
+		old.remove(context)
 	else:
-		_context["source"] = self
-		GASLogger.info("应用BUFF：{0}".format([self]))
+		context["source"] = self
+		GASLogger.info("apply buff: {0}".format([self]))
 
 ## 更新BUFF状态
-func _update() -> void:
-	GASLogger.debug("更新{0} BUFF状态".format([self]))
+func _update(context: Dictionary) -> void:
+	GASLogger.debug("update buff: {0}".format([self]))
 	if is_permanent: return
 	if buff_type == 1: 
-		var ability_component : AbilityComponent = _context.get("ability_component")
-		ability_component.remove_ability(self)
+		var ability_component : AbilityComponent = context.get("ability_component")
+		ability_component.remove_ability(self, context)
 	elif buff_type == 0:
 		value -= 1
 		if value <= 0:
-			var ability_component : AbilityComponent = _context.get("ability_component")
-			ability_component.remove_ability(self)
-	GASLogger.debug("更新buff {0} 的状态，完成！ 当前层数{1}".format([self, value]))
+			var ability_component : AbilityComponent = context.get("ability_component")
+			ability_component.remove_ability(self, context)
+	GASLogger.debug("update buff: {0} status, finished! current value: {1}".format([self, value]))
 
 ## 合并BUFF
 func _merge_buff(old: BuffAbility, new: BuffAbility) -> void:

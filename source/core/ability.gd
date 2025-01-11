@@ -18,40 +18,37 @@ class_name Ability
 ## 效果配置文件路径
 @export_file("*.json") var effect_config_path: String
 
-## 技能上下文
-var _context : Dictionary
-
 signal applied(context: Dictionary)
 signal removed(context: Dictionary)
 signal cast_started(context: Dictionary)
 signal cast_finished(context: Dictionary)
 
 ## 应用技能
-func apply(ability_component: AbilityComponent, context: Dictionary) -> void:
-	_context = context.duplicate(true)
-	_context.ability = self
+func apply(context: Dictionary) -> void:
+	context.ability = self
 	if not effect_config_path.is_empty():
 		_load_effect_config()
-	_apply(_context)
-	applied.emit(_context)
+	_apply(context)
 	if is_auto_cast:
-		cast(_context)
+		await cast(context)
+	applied.emit(context)
 
 ## 移除技能
-func remove() -> void:
-	await effect_container.revoke()
-	_remove()
-	removed.emit(_context)
+func remove(context: Dictionary) -> void:
+	await effect_container.revoke(context)
+	_remove(context)
+	removed.emit(context)
 
 ## 执行技能
 func cast(context: Dictionary) -> bool:
 	cast_started.emit(context)
-	_context.merge(context, true)
-	if not _can_cast(_context):
+	if not _can_cast(context):
 		return false
-	var ok = await _cast(_context)
-	cast_finished.emit(_context)
-	return ok
+	if not effect_container: return false
+	await _cast(context)
+	var result = await effect_container.execute(context)
+	cast_finished.emit(context)
+	return result
 
 ## 添加标签
 func add_tag(tag: StringName) -> void:
@@ -72,25 +69,15 @@ func has_tags(tags: Array[StringName]) -> bool:
 func _apply(context: Dictionary) -> void:
 	pass
 
-func _remove() -> void:
+func _remove(context: Dictionary) -> void:
 	pass
 
 ## 判断能否施放, 子类实现
-func _can_cast(_context: Dictionary) -> bool:
+func _can_cast(context: Dictionary) -> bool:
 	return true
 
-func _cast(context: Dictionary) -> bool:
-	if not effect_container: return false
-	var result = await effect_container.execute(_context)
-	if result == AbilityEffectNode.STATUS.SUCCESS:
-		GASLogger.info("技能{0}执行成功".format([self]))
-		cast_finished.emit(context)
-		return true
-	else:
-		GASLogger.error("技能{0}执行失败".format([self]))
-		# 撤销执行
-		effect_container.revoke()
-		return false
+func _cast(context: Dictionary) -> void:
+	pass
 
 ## 从配置加载效果节点树
 func _load_effect_config() -> void:
