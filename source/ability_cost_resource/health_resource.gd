@@ -4,10 +4,10 @@ class_name HealthResource
 ## 生命值，适合邪恶、残暴单位
 ## 最大值对应生命值属性，属性概念时需要更新最大值
 
-func initialization(attribute_component: AbilityAttributeComponent) -> void:
-	attribute_name = "生命值"
-	ability_resource_name = "生命值"
-	super(attribute_component)
+
+func _initialization(attribute_component: AbilityAttributeComponent) -> void:
+	ability_resource_id = "health"
+	ability_resource_id = "生命值"
 
 ## 消耗
 func consume(amount: int) -> bool:

@@ -11,8 +11,9 @@ class_name RageResource
 ## 受到伤害时恢复的值
 @export var regain_hurted: int = 5
 
-func initialization(attribute_component: AbilityAttributeComponent) -> void:
-	super(attribute_component)
+func _initialization(attribute_component: AbilityAttributeComponent) -> void:
+	ability_resource_id = "rage"
+	ability_resource_id = "怒气值"
 	current_value = 0
 
 ## 造成伤害后恢复怒气
@@ -24,6 +25,10 @@ func on_post_hit(_context: Dictionary) -> void:
 func on_post_hurt(_context: Dictionary) -> void:
 	GASLogger.info("on_post_hurt: %s" % [regain_hurted])
 	restore(regain_hurted)
+
+## 战斗结束时清空
+func on_combat_end(_context: Dictionary) -> void:
+	current_value = 0
 
 func _get_resource_name() -> StringName:
 	return "怒气值"

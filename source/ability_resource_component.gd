@@ -5,57 +5,77 @@ class_name AbilityResourceComponent
 
 ## 当前单位所有的技能消耗资源，同名资源是单例
 @export var _ability_resources : Dictionary[StringName, AbilityResource]
+## 技能组件
 @export var _ability_component : AbilityComponent
+## 属性组件
 @export var _attribute_component : AbilityAttributeComponent
 
-## 资源变化时发出
-signal resource_changed(res_name: StringName, value: float)
+## 资源当前值变化时发出
+signal resource_current_value_changed(res_id: StringName, value: float)
+## 资源最大值变化时发出
+signal resource_max_value_changed(res_id: StringName, value: float, max_value: float)
 
 ## 组件初始化
 func initialization(ability_resource_set: Array[AbilityResource] = []) -> void:
 	for res : AbilityResource in ability_resource_set:
-		if not _ability_resources.has(res.ability_resource_name):
-			res.initialization(_attribute_component)
-			_ability_resources[res.ability_resource_name] = res
-	_ability_component.game_event_handled.connect(_on_ability_component_game_event_handled)	
+		add_resource(res)
+	_ability_component.game_event_handled.connect(_on_ability_component_game_event_handled)
+
+## 添加资源
+func add_resource(resource: AbilityResource) -> void:
+	if _ability_resources.has(resource.ability_resource_id):
+		GASLogger.error("resource already exists: {0}".format([resource.ability_resource_id]))
+		return
+	resource.initialization(_attribute_component)
+	_ability_resources[resource.ability_resource_id] = resource
+	if not resource.current_value_changed.is_connected(_on_resource_current_value_changed):
+		resource.current_value_changed.connect(_on_resource_current_value_changed)
+	if not resource.max_value_changed.is_connected(_on_resource_max_value_changed):
+		resource.max_value_changed.connect(_on_resource_max_value_changed)
+
+## 移除资源
+func remove_resource(resource_id: StringName) -> void:
+	var res : AbilityResource = get_resource(resource_id)
+	if not res:
+		GASLogger.error("can not found resource by id: {0}".format([resource_id]))
+		return
+	if res.current_value_changed.is_connected(_on_resource_current_value_changed):
+		res.current_value_changed.disconnect(_on_resource_current_value_changed)
+	if res.max_value_changed.is_connected(_on_resource_max_value_changed):
+		res.max_value_changed.disconnect(_on_resource_max_value_changed)
+	_ability_resources.erase(resource_id)
 
 ## 检查资源是否足够消耗
-func has_enough_resources(res_name: StringName, cost: int) -> bool:
-	if res_name.is_empty(): return true
-	return get_resource_value(res_name) >= cost
+func has_enough_resources(res_id: StringName, cost: int) -> bool:
+	if res_id.is_empty(): return true
+	return get_resource_value(res_id) >= cost
 
 ## 获取资源数量
-func get_resource_value(res_name: StringName) -> int:
-	var res := get_resource(res_name)
+func get_resource_value(res_id: StringName) -> int:
+	var res := get_resource(res_id)
 	if res:
 		return res.current_value
-	return -1
+	GASLogger.error("can not found resource by id: {0}".format([res_id]))
+	return 0
 
 ## 获取资源
-func get_resource(res_name: StringName) -> AbilityResource:
-	var res : AbilityResource = _ability_resources.get(res_name)
-	if res:
-		return res
-	GASLogger.error("can not found resource by name: {0}".format([res_name]))
-	return null
+func get_resource(res_id: StringName) -> AbilityResource:
+	return _ability_resources.get(res_id, null)
 
 ## 消耗资源
-func consume_resources(res_name: StringName, cost: int) -> bool:
-	var res := get_resource(res_name)
+func consume_resources(res_id: StringName, cost: int) -> bool:
+	var res := get_resource(res_id)
 	if res:
 		return res.consume(cost)
 	return false
 
 ## 获取所有资源
 func get_resources() -> Array[AbilityResource]:
-	var _resources : Array[AbilityResource]
-	for res : AbilityResource in _ability_resources.values():
-		_resources.append(res)
-	return _resources
+	return _ability_resources.values()
 
 ## 应用伤害
 func apply_damage(damage: AbilityDamage) -> void:
-	for res : AbilityResource in _ability_resources.values():
+	for res : AbilityResource in get_resources():
 		if res.has_method("apply_damage"):
 			res.call("apply_damage", damage)
 
@@ -72,10 +92,18 @@ func can_cost_ability(ability: Ability, context: Dictionary) -> bool:
 
 ## 触发资源回调
 func _handle_resource_callback(callback_name: StringName, context : Dictionary) -> void:
-	for res : AbilityResource in _ability_resources.values():
+	for res : AbilityResource in get_resources():
 		if res.has_method(callback_name):
 			res.call(callback_name, context)
 
 ## 处理游戏事件
 func _on_ability_component_game_event_handled(event_name: StringName, event_context: Dictionary) -> void:
 	_handle_resource_callback(event_name, event_context)
+
+## 资源当前值改变
+func _on_resource_current_value_changed(res_id: StringName, value: float) -> void:
+	resource_current_value_changed.emit(res_id, value)
+
+## 资源最大值改变
+func _on_resource_max_value_changed(res_id: StringName, value: float, max_value: float) -> void:
+	resource_max_value_changed.emit(res_id, value, max_value)

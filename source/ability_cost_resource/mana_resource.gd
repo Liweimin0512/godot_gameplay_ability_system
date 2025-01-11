@@ -6,9 +6,9 @@ class_name ManaResource
 ## 随时间（回合）自然恢复
 
 ## 初始化
-func initialization(attribute_component: AbilityAttributeComponent) -> void:
-	attribute_name = "魔法值"
-	super(attribute_component)
+func _initialization(attribute_component: AbilityAttributeComponent) -> void:
+	ability_resource_id = "mana"
+	ability_resource_id = "魔法值"
 
 ## 消耗
 func consume(amount: int) -> bool:
