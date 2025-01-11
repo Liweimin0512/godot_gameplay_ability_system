@@ -8,6 +8,13 @@ const W_ABILITY_RESOURCE = preload("res://addons/godot_gameplay_ability_system/s
 @onready var w_buff_container: MarginContainer = %W_BuffContainer
 @onready var grid_container: GridContainer = %GridContainer
 
+@export var ability_resource_colors: Dictionary[StringName, Color] = {
+	"health": Color.RED,
+	"rage": Color.DARK_RED,
+	"energy": Color.YELLOW,
+	"mana": Color.BLUE,
+}
+
 var _ability_character: Node
 
 func setup(ability_character : Node) -> void:
@@ -23,7 +30,7 @@ func setup(ability_character : Node) -> void:
 	for res : AbilityResource in ability_resource_component.get_resources():
 		var w_res : W_AbilityResource = W_ABILITY_RESOURCE.instantiate()
 		v_box_container.add_child(w_res)
-		w_res.setup(res)
+		w_res.setup(res, ability_resource_colors[res.resource_id])
 	ability_component.ability_applied.connect(
 		func(ability: Ability, _context: Dictionary) -> void:
 			if ability is BuffAbility: 
