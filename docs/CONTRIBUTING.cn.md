@@ -1,6 +1,6 @@
 # 贡献指南
 
-[English](CONTRIBUTING.en.md) | [简体中文](CONTRIBUTING.md)
+[English](CONTRIBUTING.md) | [简体中文](CONTRIBUTING.cn.md)
 
 感谢你考虑为回合制战斗系统做出贡献！
 
@@ -89,7 +89,7 @@ Closes #123
 
 ## 📋 行为准则
 
-请参阅我们的 [行为准则](CODE_OF_CONDUCT.md)，共同维护一个友好的社区环境。
+请参阅我们的 [行为准则](CODE_OF_CONDUCT.cn.md)，共同维护一个友好的社区环境。
 
 ## 🙏 致谢
 
