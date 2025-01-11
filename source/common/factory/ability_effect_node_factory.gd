@@ -5,33 +5,31 @@ extends Node
 ## 节点类型映射表
 var _node_type_map: Dictionary = {
 	# 控制节点
-	"sequence": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_control_node/control_sequence_node.gd"),
-	"selector": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_control_node/control_selector_node.gd"),
-	"parallel": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_control_node/control_parallel_node.gd"),
-	"random_selector": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_control_node/control_random_selector_node.gd"),
+	"sequence": preload("res://addons/godot_gameplay_ability_system/source/ability_action/control_actions/control_sequence.gd"),
+	"selector": preload("res://addons/godot_gameplay_ability_system/source/ability_action/control_actions/control_selector.gd"),
+	"parallel": preload("res://addons/godot_gameplay_ability_system/source/ability_action/control_actions/control_parallel.gd"),
+	"random_selector": preload("res://addons/godot_gameplay_ability_system/source/ability_action/control_actions/control_random_selector.gd"),
 	
 	# 装饰器节点
-	"target_selector": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_decorator_node/decorator_target_selector.gd"),
-	# "random_target": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_decorator_node/decorator_random_target_node.gd"),
-	# "for_each_target": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_decorator_node/decorator_for_each_target_node.gd"),
-	"condition_ability_name": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_decorator_node/condition_ability_name_node.gd"),
-	"condition_ability_resource": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_decorator_node/condition_ability_resource_node.gd"),
-	"decorator_delay": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_decorator_node/decorator_delay_node.gd"),
-	"decorator_probability": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_decorator_node/decorator_probability_node.gd"),
-	"decorator_trigger": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_decorator_node/decorator_trigger_node.gd"),
-	"decorator_repeat": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_decorator_node/decorator_repeat_node.gd"),
+	"condition_ability_name": preload("res://addons/godot_gameplay_ability_system/source/ability_action/decorator_actions/condition_ability_name.gd"),
+	"condition_ability_resource": preload("res://addons/godot_gameplay_ability_system/source/ability_action/decorator_actions/condition_ability_resource.gd"),
+	"target_selector": preload("res://addons/godot_gameplay_ability_system/source/ability_action/decorator_actions/decorator_target_selector.gd"),
+	"decorator_delay": preload("res://addons/godot_gameplay_ability_system/source/ability_action/decorator_actions/decorator_delay.gd"),
+	"decorator_probability": preload("res://addons/godot_gameplay_ability_system/source/ability_action/decorator_actions/decorator_probability.gd"),
+	"decorator_trigger": preload("res://addons/godot_gameplay_ability_system/source/ability_action/decorator_actions/decorator_trigger.gd"),
+	"decorator_repeat": preload("res://addons/godot_gameplay_ability_system/source/ability_action/decorator_actions/decorator_repeat.gd"),
 
 	# 动作节点
-	"deal_damage": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_action_node/deal_damage_node.gd"),
-	"apply_ability": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_action_node/apply_ability_node.gd"),
-	"apply_tag": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_action_node/apply_tag_node.gd"),
-	"modify_attribute": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_action_node/modify_attribute_node.gd"),
-	"modify_ability_resource": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_action_node/modify_ability_resource_node.gd"),
-	"modify_damage": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_action_node/modify_damage_node.gd"),
-	"play_animation": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_action_node/play_animation_node.gd"),
-	"play_sound": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_action_node/play_sound_node.gd"),
-	"spawn_projectile": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_action_node/spawn_projectile_effect.gd"),
-	"spawn_vfx": preload("res://addons/godot_gameplay_ability_system/source/ability_effect_node/ability_effect_action_node/spawn_vfx_node.gd"),
+	"apply_damage": preload("res://addons/godot_gameplay_ability_system/source/ability_action/effect_actions/apply_damage_effect.gd"),
+	"apply_ability": preload("res://addons/godot_gameplay_ability_system/source/ability_action/effect_actions/apply_ability_effect.gd"),
+	"apply_tag": preload("res://addons/godot_gameplay_ability_system/source/ability_action/effect_actions/apply_tag_effect.gd"),
+	"modify_attribute": preload("res://addons/godot_gameplay_ability_system/source/ability_action/effect_actions/modify_attribute_effect.gd"),
+	"modify_ability_resource": preload("res://addons/godot_gameplay_ability_system/source/ability_action/effect_actions/modify_ability_resource_effect.gd"),
+	"modify_damage": preload("res://addons/godot_gameplay_ability_system/source/ability_action/effect_actions/modify_damage_effect.gd"),
+	"play_animation": preload("res://addons/godot_gameplay_ability_system/source/ability_action/effect_actions/play_animation_effect.gd"),
+	"play_sound": preload("res://addons/godot_gameplay_ability_system/source/ability_action/effect_actions/play_sound_effect.gd"),
+	"spawn_projectile": preload("res://addons/godot_gameplay_ability_system/source/ability_action/effect_actions/spawn_projectile_effect.gd"),
+	"spawn_vfx": preload("res://addons/godot_gameplay_ability_system/source/ability_action/effect_actions/spawn_vfx_effect.gd"),
 }
 
 ## 缓存已加载的JSON配置

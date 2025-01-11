@@ -23,8 +23,6 @@ var defender: Node
 var damage_type: DAMAGE_TYPE
 ## 是否为间接伤害
 var is_indirect: bool = false
-## 伤害附带效果
-var effect: AbilityEffectNode
 ## 必定暴击
 var is_critical: bool = false
 ## 必定命中
@@ -90,13 +88,11 @@ func _init(
 		p_attacker: Node = null, 
 		p_defender: Node = null, 
 		p_damage_type: DAMAGE_TYPE = DAMAGE_TYPE.PHYSICAL, 
-		p_is_indirect: bool = false,
-		p_effect: AbilityEffectNode = null) -> void:
+		p_is_indirect: bool = false) -> void:
 	attacker = p_attacker
 	defender = p_defender
 	damage_type = p_damage_type
 	is_indirect = p_is_indirect
-	effect = p_effect
 
 ## 造成伤害
 func apply_damage() -> void:
