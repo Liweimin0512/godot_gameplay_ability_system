@@ -9,4 +9,4 @@ class_name EneryResource
 
 func _initialization(attribute_component: AbilityAttributeComponent) -> void:
 	ability_resource_id = "energy"
-	ability_resource_id = "能量值"
+	ability_resource_name = "能量值"

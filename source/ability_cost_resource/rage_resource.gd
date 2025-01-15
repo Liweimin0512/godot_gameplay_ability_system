@@ -13,7 +13,7 @@ class_name RageResource
 
 func _initialization(attribute_component: AbilityAttributeComponent) -> void:
 	ability_resource_id = "rage"
-	ability_resource_id = "怒气值"
+	ability_resource_name = "怒气值"
 	current_value = 0
 
 ## 造成伤害后恢复怒气

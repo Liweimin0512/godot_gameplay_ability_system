@@ -7,7 +7,7 @@ class_name HealthResource
 
 func _initialization(attribute_component: AbilityAttributeComponent) -> void:
 	ability_resource_id = "health"
-	ability_resource_id = "生命值"
+	ability_resource_name = "生命值"
 
 ## 消耗
 func consume(amount: int) -> bool:

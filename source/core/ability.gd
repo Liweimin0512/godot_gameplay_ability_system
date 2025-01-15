@@ -14,7 +14,7 @@ class_name Ability
 ## 技能是否在满足条件时自动施放
 @export var is_auto_cast: bool
 ## 效果容器
-@export var effect_container: AbilityEffectNode
+@export var effect_container: AbilityAction
 ## 效果配置文件路径
 @export_file("*.json") var effect_config_path: String
 

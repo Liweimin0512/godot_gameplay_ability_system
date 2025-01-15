@@ -3,7 +3,7 @@ class_name AbilityResourceCost
 
 ## 技能资源消耗
 
-@export var cost_resource_name: StringName
+@export var cost_resource_id: StringName
 @export var cost_value: int
 
 func can_cost(context: Dictionary) -> bool:
@@ -15,12 +15,12 @@ func can_cost(context: Dictionary) -> bool:
 	if not resource_component: 
 		GASLogger.error("技能{0}判断消耗资源{1}时，资源组件不存在".format([ability, resource_name]))
 		return false
-	return resource_component.has_enough_resources(cost_resource_name, cost_value)
+	return resource_component.has_enough_resources(cost_resource_id, cost_value)
 
 func cost(context: Dictionary) -> void:
 	var resource_component := context.get("resource_component")
 	var ability : Ability = context.get("ability")
 	if not resource_component: 
-		GASLogger.error("技能{0}消耗资源{1}时，资源组件不存在".format([ability, cost_resource_name]))
+		GASLogger.error("技能{0}消耗资源{1}时，资源组件不存在".format([ability, cost_resource_id]))
 		return
-	resource_component.consume_resources(cost_resource_name, cost_value)
+	resource_component.consume_resources(cost_resource_id, cost_value)

@@ -30,7 +30,7 @@ func setup(ability_character : Node) -> void:
 	for res : AbilityResource in ability_resource_component.get_resources():
 		var w_res : W_AbilityResource = W_ABILITY_RESOURCE.instantiate()
 		v_box_container.add_child(w_res)
-		w_res.setup(res, ability_resource_colors[res.resource_id])
+		w_res.setup(res, ability_resource_colors[res.ability_resource_id])
 	ability_component.ability_applied.connect(
 		func(ability: Ability, _context: Dictionary) -> void:
 			if ability is BuffAbility: 

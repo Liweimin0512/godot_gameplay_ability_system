@@ -8,7 +8,7 @@ class_name ManaResource
 ## 初始化
 func _initialization(attribute_component: AbilityAttributeComponent) -> void:
 	ability_resource_id = "mana"
-	ability_resource_id = "魔法值"
+	ability_resource_name = "魔法值"
 
 ## 消耗
 func consume(amount: int) -> bool:
