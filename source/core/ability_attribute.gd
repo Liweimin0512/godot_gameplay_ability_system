@@ -16,6 +16,11 @@ class_name AbilityAttribute
 	set(value):
 		attribute_level = value
 		_update_value()
+## 是否显示
+@export var is_show := true
+## 是否为百分比显示
+@export var is_percentage := false
+
 ## 属性修改器列表
 var _modifiers: Array[AbilityAttributeModifier] = []
 ## 属性值
