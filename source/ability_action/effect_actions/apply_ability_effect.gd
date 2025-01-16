@@ -13,6 +13,7 @@ func _perform_action(context: Dictionary = {}) -> STATUS:
 		GASLogger.error("Apply Ability Action target is null")
 		return STATUS.FAILURE
 	var ability_component : AbilityComponent = target.ability_component
-	ability_component.apply_ability(ability, context.merge(ability_context, true))
+	ability_context.merge(context, true)
+	ability_component.apply_ability(ability, ability_context)
 	GASLogger.info("对目标应用Ability:{0}".format([ability]))
 	return STATUS.SUCCESS

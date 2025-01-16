@@ -6,6 +6,10 @@ class_name AbilityResourceCost
 @export var cost_resource_id: StringName
 @export var cost_value: int
 
+func _init(id: StringName = "", value: int = 0) -> void:
+	cost_resource_id = id
+	cost_value = value
+
 func can_cost(context: Dictionary) -> bool:
 	var ability = context.get("ability")
 	if not ability:

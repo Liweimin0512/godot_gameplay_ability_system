@@ -8,9 +8,9 @@ class_name AbilityAttribute
 ## 属性名称
 @export var attribute_name : StringName
 ## 属性基础值
-@export var _base_value: float
+@export var base_value: float
 ## 属性成长值
-@export var _growth_value: float = 0
+@export var growth_value: float = 0
 ## 属性等级
 @export var attribute_level: int = 1:
 	set(value):
@@ -39,7 +39,7 @@ signal attribute_value_changed(value: float)
 
 func _init(atr_name : StringName = "", base: float = 0) -> void:
 	attribute_name = atr_name
-	_base_value = base
+	base_value = base
 
 ## 修改属性
 func _update_value() -> void:
@@ -54,7 +54,7 @@ func _update_value() -> void:
 				_percentage_modify += modifier.value
 			"absolute":
 				_absolute_modify = modifier.value
-	_value = (_base_value + _growth_value * attribute_level + _value_modify) * (1 + _percentage_modify) + _absolute_modify
+	_value = (base_value + growth_value * attribute_level + _value_modify) * (1 + _percentage_modify) + _absolute_modify
 
 ## 添加修改器
 func add_modifier(modifier: AbilityAttributeModifier) -> void:
