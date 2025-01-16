@@ -61,7 +61,7 @@ func is_type_registered(type_name: String) -> bool:
 	return _node_type_map.has(type_name)
 
 ## 从JSON文件创建效果节点树
-func create_from_json(json_path: String) -> AbilityEffectNode:
+func create_from_json(json_path: String) -> AbilityAction:
 	# 先检查缓存
 	if _ability_effect_node_cache.has(json_path):
 		return _ability_effect_node_cache[json_path]
@@ -72,7 +72,7 @@ func create_from_json(json_path: String) -> AbilityEffectNode:
 	return node
 
 ## 从JSON配置创建效果节点树
-func create_from_config(config: Dictionary) -> AbilityEffectNode:
+func create_from_config(config: Dictionary) -> AbilityAction:
 	if not config.has("type"):
 		GASLogger.error("Effect node config must have 'type' field")
 		return null
@@ -83,7 +83,7 @@ func create_from_config(config: Dictionary) -> AbilityEffectNode:
 		return null
 		
 	var node_script = _node_type_map[node_type]
-	var node : AbilityEffectNode = node_script.new()
+	var node : AbilityAction = node_script.new()
 	
 	# 设置节点属性
 	for key in config:

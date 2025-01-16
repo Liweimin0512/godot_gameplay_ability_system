@@ -9,7 +9,7 @@ class_name ApplyAbilityEffect
 func _perform_action(context: Dictionary = {}) -> STATUS:
 	var target := context.get("target")
 	if not target:
-		GASLogger.error("ApplyAbilityEffectNode target is null")
+		GASLogger.error("apply ability action target is null")
 		return STATUS.FAILURE
 	var ability_component : AbilityComponent = target.ability_component
 	ability_component.apply_ability(ability, context)
