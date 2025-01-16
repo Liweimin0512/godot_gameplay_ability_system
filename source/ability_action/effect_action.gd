@@ -16,23 +16,23 @@ func _execute(context: Dictionary) -> STATUS:
 		return STATUS.FAILURE
 	var scene_tree : SceneTree = _get_context_value(context, "tree")
 	if not scene_tree:
-		GASLogger.error("apply ability action {0} execute failed, because scene tree is null".format([self]))
+		GASLogger.error("ability_action {0} execute failed, because scene tree is null".format([self]))
 		return STATUS.FAILURE
 	if pre_delay > 0.0:
-		GASLogger.debug("apply ability action pre_delay: %s" % [pre_delay])
+		GASLogger.debug("ability_action pre_delay: %s" % [pre_delay])
 		await scene_tree.create_timer(pre_delay).timeout
 	var result = await _perform_action(context)
 	if result == STATUS.SUCCESS:
 		_is_success = true
 	if post_delay > 0.0:
-		GASLogger.debug("apply ability action post_delay: %s" % [post_delay])
+		GASLogger.debug("ability_action post_delay: %s" % [post_delay])
 		await scene_tree.create_timer(post_delay).timeout
 	return result
 
 func _revoke(context: Dictionary) -> bool:
 	if _is_success:
 		return await _revoke_action(context)
-	GASLogger.error("apply ability action revoke failed, because execute failed")
+	GASLogger.error("ability_action revoke failed, because execute failed")
 	return false
 
 func _validate_parameters() -> bool:
