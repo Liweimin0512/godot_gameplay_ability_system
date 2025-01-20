@@ -60,18 +60,7 @@ func get_registered_types() -> Array[String]:
 func is_type_registered(type_name: String) -> bool:
 	return _node_type_map.has(type_name)
 
-## 从JSON文件创建效果节点树
-func create_from_json(json_path: String) -> AbilityAction:
-	# 先检查缓存
-	if _ability_effect_node_cache.has(json_path):
-		return _ability_effect_node_cache[json_path]
-	var config : Dictionary = JsonLoader.get_cached_json(json_path)
-	var node := create_from_config(config)
-	if node:
-		_ability_effect_node_cache[json_path] = node
-	return node
-
-## 从JSON配置创建效果节点树
+## 从配置数据创建效果节点树
 func create_from_config(config: Dictionary) -> AbilityAction:
 	if not config.has("type"):
 		GASLogger.error("Effect node config must have 'type' field")
