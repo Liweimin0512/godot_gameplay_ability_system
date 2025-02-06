@@ -83,7 +83,8 @@ func _cast(context: Dictionary) -> void:
 func _load_effect_config() -> void:
 	if effect_config_path.is_empty():
 		return
-	var effect_tree = EffectNodeFactory.create_from_json(effect_config_path)
+	var effect_config : Dictionary = DataManager.get_table_item("ability_action", effect_config_path)
+	var effect_tree = AbilitySystem.create_from_config(effect_config)
 	if effect_tree:
 		effect_container = effect_tree
 	else:
