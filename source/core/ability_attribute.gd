@@ -8,9 +8,15 @@ class_name AbilityAttribute
 ## 属性名称
 @export var attribute_name : StringName
 ## 属性基础值
-@export var base_value: float
+@export var base_value: float:
+	set(value):
+		base_value = value
+		_update_value()
 ## 属性成长值
-@export var growth_value: float = 0
+@export var growth_value: float = 0:
+	set(value):
+		growth_value = value
+		_update_value()
 ## 属性等级
 @export var attribute_level: int = 1:
 	set(value):
@@ -36,10 +42,6 @@ var _value: float:
 		attribute_value_changed.emit(value)
 
 signal attribute_value_changed(value: float)
-
-func _init(atr_name : StringName = "", base: float = 0) -> void:
-	attribute_name = atr_name
-	base_value = base
 
 ## 修改属性
 func _update_value() -> void:

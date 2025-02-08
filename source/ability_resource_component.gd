@@ -15,8 +15,8 @@ signal resource_current_value_changed(res_id: StringName, value: float)
 ## 资源最大值变化时发出
 signal resource_max_value_changed(res_id: StringName, value: float, max_value: float)
 
-## 组件初始化
-func initialization(ability_resource_set: Array[AbilityResource] = []) -> void:
+## 设置资源数据
+func set_model_data(ability_resource_set: Array[AbilityResource] = []) -> void:
 	for res : AbilityResource in ability_resource_set:
 		add_resource(res)
 	_ability_component.game_event_handled.connect(_on_ability_component_game_event_handled)

@@ -9,8 +9,8 @@ class_name AbilityAttributeComponent
 ## 属性变化时发出
 signal attribute_changed(attribute_id: StringName, value: float)
 
-## 组件初始化
-func initialization(attribute_set: Array[AbilityAttribute] = []) -> void:
+## 设置属性数据
+func set_model_data(attribute_set: Array[AbilityAttribute] = []) -> void:
 	for attribute : AbilityAttribute in attribute_set:
 		add_attribute(attribute)
 

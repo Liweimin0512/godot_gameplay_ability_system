@@ -23,8 +23,8 @@ signal ability_trigger_failed(ability: Ability, context: Dictionary)
 ## 游戏事件处理完成
 signal game_event_handled(event_name: StringName, event_context: Dictionary)
 
-## 组件初始化
-func initialization(ability_set : Array[Ability] = [], ability_context: Dictionary = {}) -> void:
+## 设置技能组件数据
+func set_model_data(ability_set : Array[Ability] = [], ability_context: Dictionary = {}) -> void:
 	for ability in ability_set:
 		apply_ability(ability, ability_context.duplicate(true))
 		print("ability_component: {0} 初始化".format([owner.to_string()]))
