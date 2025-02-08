@@ -14,7 +14,9 @@ signal ability_effect_applied(effect: AbilityAction, target: Node)
 # endregion
 
 # region 变量定义
-var _logger: CoreSystem.Logger = CoreSystem.logger
+var _logger: CoreSystem.Logger:
+	get:
+		return CoreSystem.logger
 var _initialized: bool = false
 
 ## 效果节点类型注册表
@@ -135,7 +137,6 @@ func create_from_config(config: Dictionary) -> AbilityAction:
 	
 	return node
 
-
 ## 创建技能实例
 func create_ability_instance(ability_id: String) -> Ability:
 	var ability_data: Ability = DataManager.get_data_model("ability", ability_id)
@@ -154,37 +155,32 @@ func _register_default_effect_nodes() -> void:
 		var script_path: String = _default_node_types[type_name]
 		register_effect_node_type(type_name, script_path)
 
+func _register_ability_action_types(action_table_type: TableType, completed_callable: Callable = Callable()) -> void:
+	DataManager.load_data_table(action_table_type, _on_ability_action_types_loaded.bind(completed_callable))
+
 ## 注册模型类型
 ## [param model_types] 模型类型数组
 ## [param action_table_types] 动作表类型字典
 ## [param completed_callable] 完成回调
 func _register_model_types(
 		model_types: Array[ModelType], 
-		action_table_types: TableType, 
-		completed_callable: Callable = Callable()) -> void:
-	DataManager.load_models(model_types, _on_all_data_loaded.bind(action_table_types, completed_callable), _on_load_progress)
-	_logger.debug("Load Model Types......")
-
-## 数据加载完成回调
-## [param result] 加载结果
-## [param action_table_types] 动作表类型字典
-## [param completed_callable] 完成回调
-func _on_all_data_loaded(
-		result: Array[String], 
 		action_table_type: TableType, 
 		completed_callable: Callable = Callable()) -> void:
-	DataManager.load_data_table(
-		action_table_type,
-		func(table_name: String) -> void:
-			_logger.debug("Load Action Table: %s" % table_name)
-			_initialized = true
-			emit_signal("initialized", true)
-			
-			if completed_callable.is_valid():
-				completed_callable.call(result)
-			
-			_logger.info("AbilitySystem initialized successfully")
-	)
+	DataManager.load_models(
+		model_types, 
+		func(result: Array[String]) -> void:
+			_register_ability_action_types(action_table_type, completed_callable),
+		_on_load_progress)
+	_logger.debug("Load Model Types......")
+
+func _on_ability_action_types_loaded(type_name: String, completed_callable: Callable = Callable()) -> void:
+	_logger.debug("Load Action Table: %s" % type_name)
+	
+	if completed_callable.is_valid():
+		completed_callable.call()
+	_initialized = true
+	initialized.emit(true)
+	_logger.info("AbilitySystem initialized successfully")
 
 ## 加载进度回调
 ## [param progress] 加载进度
