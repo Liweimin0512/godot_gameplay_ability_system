@@ -2,14 +2,14 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-[![Godot v4.3](https://img.shields.io/badge/Godot-v4.3-%23478cbf)](https://godotengine.org/)
+[![Godot v4.4](https://img.shields.io/badge/Godot-v4.4-%23478cbf)](https://godotengine.org/)
 [![MIT license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github)](https://github.com/Liweimin0512/GodotGameplayAbilitySystem)
 [![Gitee](https://img.shields.io/badge/Gitee-Repository-red?logo=gitee)](https://gitee.com/Giab/GodotGameplayAbilitySystem)
 
 ## 💡 Introduction
 
-An AbilitySystem developed based on Godot 4.x, designed to provide a powerful, modular, extensible, data-driven, and reusable capability system plugin based on an effect tree structure for various types of games.
+An AbilitySystem developed based on Godot 4.4, designed to provide a powerful, modular, extensible, data-driven, and reusable capability system plugin based on an effect tree structure for various types of games.
 
 ## ✨ Features
 
