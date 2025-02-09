@@ -1,4 +1,4 @@
-extends Node
+extends LogicComponent
 class_name AbilityComponent
 
 ## 技能组件，维护广义上的技能（BUFF、SKILL）等
@@ -23,8 +23,9 @@ signal ability_trigger_failed(ability: Ability, context: Dictionary)
 ## 游戏事件处理完成
 signal game_event_handled(event_name: StringName, event_context: Dictionary)
 
-## 设置技能组件数据
-func set_model_data(ability_set : Array[Ability] = [], ability_context: Dictionary = {}) -> void:
+func _on_data_updated(data: Dictionary) -> void:
+	var ability_set : Array[Ability] = data.get("abilities", [])
+	var ability_context : Dictionary = data.get("ability_context", {})
 	for ability in ability_set:
 		apply_ability(ability, ability_context.duplicate(true))
 		print("ability_component: {0} 初始化".format([owner.to_string()]))
@@ -51,7 +52,7 @@ func get_same_ability(ability: Ability) -> Ability:
 ## 应用技能
 func apply_ability(ability: Ability, ability_context: Dictionary) -> void:
 	ability_context.merge({
-		"tree": get_tree(),
+		"tree": owner.get_tree(),
 		})
 	ability.applied.connect(_on_ability_applied.bind(ability))
 	ability.cast_started.connect(_on_ability_cast_started.bind(ability))
