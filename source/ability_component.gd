@@ -1,4 +1,4 @@
-extends Node
+extends LogicComponent
 class_name AbilityComponent
 
 ## 技能组件，维护广义上的技能（BUFF、SKILL）等
@@ -23,8 +23,9 @@ signal ability_trigger_failed(ability: Ability, context: Dictionary)
 ## 游戏事件处理完成
 signal game_event_handled(event_name: StringName, event_context: Dictionary)
 
-## 组件初始化
-func initialization(ability_set : Array[Ability] = [], ability_context: Dictionary = {}) -> void:
+func _on_data_updated(data: Dictionary) -> void:
+	var ability_set : Array[Ability] = data.get("abilities", [])
+	var ability_context : Dictionary = data.get("ability_context", {})
 	for ability in ability_set:
 		apply_ability(ability, ability_context.duplicate(true))
 		print("ability_component: {0} 初始化".format([owner.to_string()]))
@@ -51,7 +52,7 @@ func get_same_ability(ability: Ability) -> Ability:
 ## 应用技能
 func apply_ability(ability: Ability, ability_context: Dictionary) -> void:
 	ability_context.merge({
-		"tree": get_tree(),
+		"tree": owner.get_tree(),
 		})
 	ability.applied.connect(_on_ability_applied.bind(ability))
 	ability.cast_started.connect(_on_ability_cast_started.bind(ability))
@@ -93,7 +94,7 @@ func handle_game_event(event_name: StringName, event_context: Dictionary = {}) -
 	if triggers.is_empty():
 		GASLogger.debug("没有找到触发器：{0}".format([event_name]))
 		return
-	for trigger : DecoratorTriggerNode in triggers:
+	for trigger : DecoratorTrigger in triggers:
 		await trigger.handle_trigger(event_context, func(result: bool, ability: Ability) -> void:
 			if result:
 				GASLogger.debug("触发器成功：{0}".format([ability]))
@@ -105,15 +106,15 @@ func handle_game_event(event_name: StringName, event_context: Dictionary = {}) -
 		)
 
 ## 添加触发器
-func add_ability_trigger(trigger_type: StringName, trigger: DecoratorTriggerNode) -> void:
+func add_ability_trigger(trigger_type: StringName, trigger: DecoratorTrigger) -> void:
 	if _ability_triggers.has(trigger_type):
 		_ability_triggers[trigger_type].append(trigger)
 	else:
 		_ability_triggers[trigger_type] = [trigger]
 
 ## 移除触发器
-func remove_ability_trigger(trigger_type: StringName, trigger: DecoratorTriggerNode) -> void:
-	var triggers : Array[DecoratorTriggerNode] = _ability_triggers.get(trigger_type, [])
+func remove_ability_trigger(trigger_type: StringName, trigger: DecoratorTrigger) -> void:
+	var triggers : Array[DecoratorTrigger] = _ability_triggers.get(trigger_type, [])
 	if triggers.has(trigger):
 		triggers.erase(trigger)
 		_ability_triggers[trigger_type] = triggers

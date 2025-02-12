@@ -6,7 +6,7 @@ class_name SkillAbility
 ## 目标类型，如self, ally, enemy
 @export var target_type: StringName
 ## 技能消耗
-@export var ability_cost: AbilityCost = null
+@export var ability_costs: Array[AbilityCost] = []
 ## 冷却时间
 @export var cooldown: float = 0.0
 ## 当前冷却时间
@@ -24,8 +24,15 @@ var is_cooldown: bool:
 var is_available : bool = false:
 	get:
 		if is_auto_cast or is_cooldown: return false
-		if not ability_cost or ability_cost.can_cost(_context): return true
+		if can_cost: return true
 		return false
+## 是否足够消耗
+var can_cost: bool = false:
+	get:
+		for cost in ability_costs:
+			if not cost.can_cost(_context):
+				return false
+		return true
 
 ## 技能上下文
 var _context : Dictionary = {}
@@ -47,16 +54,6 @@ func _apply(context: Dictionary) -> void:
 func _remove(context: Dictionary) -> void:
 	_context.clear()
 
-## 判断能否施放
-func _can_cast(context: Dictionary) -> bool:
-	if is_cooldown:
-		GASLogger.debug("skill is cooling, can not cast skill: {0}".format([self]))
-		return false
-	if ability_cost and not ability_cost.can_cost(context):
-		GASLogger.debug("cost not enough, can not cast skill: {0}".format([self]))
-		return false
-	return true
-
 ## 执行技能
 func _cast(context: Dictionary) -> void:
 	_context = context
@@ -66,10 +63,15 @@ func _cast(context: Dictionary) -> void:
 		target = caster
 	else:
 		target = _context.get("target", null)
-	if ability_cost:
-		ability_cost.cost(context)
+	if can_cost:
+		cost(_context)
 	apply_cooldown()
 	context.set("target", target)
+
+## 消耗
+func cost(context: Dictionary) -> void:
+	for cost in ability_costs:
+		cost.cost(context)
 
 ## 更新冷却时间
 func _update_cooldown(amount: int) -> void:

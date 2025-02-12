@@ -15,22 +15,13 @@ const W_ABILITY_RESOURCE = preload("res://addons/godot_gameplay_ability_system/s
 	"mana": Color.BLUE,
 }
 
-var _ability_character: Node
-
-func setup(ability_character : Node) -> void:
-	_ability_character = ability_character
-	var ability_component : AbilityComponent = _ability_character.get("ability_component")
-	var ability_resource_component: AbilityResourceComponent = _ability_character.get("ability_resource_component")
-	if not ability_component:
-		GASLogger.error("cannt found ability component in node: {0}".format([ability_character]))
-		return
-	if not ability_resource_component:
-		GASLogger.error("cannt found ability resource component in node: {0}".format([ability_character]))
+## 设置状态
+func setup(ability_component: AbilityComponent, ability_resource_component: AbilityResourceComponent) -> void:
 	$VBoxContainer/W_AbilityResource.queue_free()
 	for res : AbilityResource in ability_resource_component.get_resources():
 		var w_res : W_AbilityResource = W_ABILITY_RESOURCE.instantiate()
 		v_box_container.add_child(w_res)
-		w_res.setup(res, ability_resource_colors[res.resource_id])
+		w_res.setup(res, ability_resource_colors[res.ability_resource_id])
 	ability_component.ability_applied.connect(
 		func(ability: Ability, _context: Dictionary) -> void:
 			if ability is BuffAbility: 
@@ -43,17 +34,20 @@ func setup(ability_character : Node) -> void:
 	)
 	w_buff_container.move_to_front()
 
+## 添加BUFF
 func add_buff(buff: BuffAbility) -> void:
 	var w_buff : W_Buff = W_BUFF.instantiate()
 	grid_container.add_child(w_buff)
 	w_buff.setup(buff)
 
+## 获取BUFF
 func get_buff(buff: BuffAbility) -> W_Buff:
 	for w_buff : W_Buff in grid_container.get_children():
 		if w_buff.buff == buff:
 			return w_buff
 	return null
 
+## 移除BUFF
 func remove_buff(buff: BuffAbility) -> void:
 	var w_buff := get_buff(buff)
 	if w_buff:

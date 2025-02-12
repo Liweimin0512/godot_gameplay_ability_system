@@ -10,21 +10,19 @@ var inspector_plugin = GenerateEffectInspectorPlugin.new()
 func _enter_tree() -> void:
 	# 注册自定义类型
 	_register_custom_types()
-	add_autoload_singleton("JsonLoader", "source/common/autoload/json_loader.gd")
-	add_autoload_singleton("EffectNodeFactory", "source/common/factory/ability_effect_node_factory.gd")
-	print("{0} v{1} initialized".format([PLUGIN_NAME, PLUGIN_VERSION]))
+	# add_autoload_singleton("EffectNodeFactory", "source/common/factory/ability_effect_node_factory.gd")
+	add_autoload_singleton("AbilitySystem", "source/ability_system.gd")
 	add_inspector_plugin(inspector_plugin)
 
 func _exit_tree() -> void:
 	# 移除自定义类型
 	_unregister_custom_types()
-	remove_autoload_singleton("JsonLoader")
-	remove_autoload_singleton("EffectNodeFactory")
-	print("{0} v{1} unloaded".format([PLUGIN_NAME, PLUGIN_VERSION]))
+	# remove_autoload_singleton("EffectNodeFactory")
+	remove_autoload_singleton("AbilitySystem")
 	remove_inspector_plugin(inspector_plugin)
 
+## 注册自定义类型
 func _register_custom_types() -> void:
-	# 注册核心组件
 	add_custom_type("AbilityComponent", "Node", preload("source/ability_component.gd"), preload("icons/ability_component.svg"))
 	add_custom_type("Ability", "Resource", preload("source/core/ability.gd"), preload("icons/ability.svg"))
 	add_custom_type("AbilityAttribute", "Resource", preload("source/core/ability_attribute.gd"), preload("icons/attribute.svg"))
@@ -32,8 +30,8 @@ func _register_custom_types() -> void:
 	add_custom_type("AbilityResourceComponent", "Node", preload("source/ability_resource_component.gd"), preload("icons/ability_resource_component.svg"))
 	add_custom_type("AbilityAttributeComponent", "Node", preload("source/ability_attribute_component.gd"), preload("icons/ability_attribute_component.svg"))
 
+## 移除自定义类型
 func _unregister_custom_types() -> void:
-	# 移除注册的类型
 	remove_custom_type("AbilityComponent")
 	remove_custom_type("Ability")
 	remove_custom_type("AbilityAttribute")

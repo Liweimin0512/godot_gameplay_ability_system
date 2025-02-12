@@ -38,12 +38,12 @@ signal max_value_changed(value: int, max_value: int)
 
 ## 初始化
 func initialization(attribute_component: AbilityAttributeComponent) -> void:
+	_initialization(attribute_component)
 	if not attribute_id.is_empty():
 		_attribute = attribute_component.get_attribute(attribute_id)
 		max_value = round(_attribute.attribute_value)
 		current_value = max_value
 		_attribute.attribute_value_changed.connect(_on_attribute_value_changed)
-	_initialization(attribute_component)
 
 ## 消耗
 func consume(amount: int) -> bool:

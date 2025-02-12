@@ -1,4 +1,4 @@
-extends Node
+extends LogicComponent
 class_name AbilityResourceComponent
 
 ## 技能资源组件
@@ -15,11 +15,16 @@ signal resource_current_value_changed(res_id: StringName, value: float)
 ## 资源最大值变化时发出
 signal resource_max_value_changed(res_id: StringName, value: float, max_value: float)
 
-## 组件初始化
-func initialization(ability_resource_set: Array[AbilityResource] = []) -> void:
+func _on_data_updated(data: Dictionary) -> void:
+	var ability_resource_set: Array[AbilityResource] = data.get("ability_resources", [])
+	_ability_component = data.get("ability_component", null)
+	_attribute_component = data.get("ability_attribute_component", null)
+	_ability_component.game_event_handled.connect(_on_ability_component_game_event_handled)
+	if not _ability_component:
+		GASLogger.error("can not found ability component")
+		return
 	for res : AbilityResource in ability_resource_set:
 		add_resource(res)
-	_ability_component.game_event_handled.connect(_on_ability_component_game_event_handled)
 
 ## 添加资源
 func add_resource(resource: AbilityResource) -> void:
