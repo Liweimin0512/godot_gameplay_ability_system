@@ -67,6 +67,16 @@ func get_resource_value(res_id: StringName) -> int:
 	GASLogger.error("can not found resource by id: {0}".format([res_id]))
 	return 0
 
+## 获取资源百分比
+## [param res_id] 资源ID
+## [return] 百分比
+func get_resource_percent(res_id: StringName) -> float:
+	var res := get_resource(res_id)
+	if res:
+		return res.current_value / res.max_value
+	GASLogger.error("can not found resource by id: {0}".format([res_id]))
+	return 0.0
+
 ## 获取资源
 func get_resource(res_id: StringName) -> AbilityResource:
 	return _ability_resources.get(res_id, null)
