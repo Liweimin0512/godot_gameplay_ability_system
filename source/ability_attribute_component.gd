@@ -1,4 +1,4 @@
-extends LogicComponent
+extends Node
 class_name AbilityAttributeComponent
 
 ## 技能属性组件

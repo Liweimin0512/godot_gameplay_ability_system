@@ -1,4 +1,4 @@
-extends LogicComponent
+extends Node
 class_name AbilityComponent
 
 ## 技能组件，维护广义上的技能（BUFF、SKILL）等
