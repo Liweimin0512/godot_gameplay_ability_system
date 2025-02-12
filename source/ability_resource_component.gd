@@ -15,11 +15,15 @@ signal resource_current_value_changed(res_id: StringName, value: float)
 ## 资源最大值变化时发出
 signal resource_max_value_changed(res_id: StringName, value: float, max_value: float)
 
-func _on_data_updated(data: Dictionary) -> void:
-	var ability_resource_set: Array[AbilityResource] = data.get("ability_resources", [])
-	_ability_component = data.get("ability_component", null)
-	_attribute_component = data.get("ability_attribute_component", null)
-	_ability_component.game_event_handled.connect(_on_ability_component_game_event_handled)
+func setup(
+		ability_resource_set : Array[AbilityResource],
+		p_ability_component : AbilityComponent = null,
+		p_ability_attribute_component : AbilityAttributeComponent = null,
+		) -> void:
+	if p_ability_component != null:
+		_ability_component = p_ability_component
+	if p_ability_attribute_component != null:
+		_attribute_component = p_ability_attribute_component
 	if not _ability_component:
 		GASLogger.error("can not found ability component")
 		return
