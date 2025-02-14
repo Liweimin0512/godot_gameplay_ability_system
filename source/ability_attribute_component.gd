@@ -1,4 +1,4 @@
-extends LogicComponent
+extends Node
 class_name AbilityAttributeComponent
 
 ## 技能属性组件
@@ -9,8 +9,7 @@ class_name AbilityAttributeComponent
 ## 属性变化时发出
 signal attribute_changed(attribute_id: StringName, value: float)
 
-func _on_data_updated(data: Dictionary) -> void:
-	var attribute_set : Array[AbilityAttribute] = data.get("ability_attributes", [])
+func setup(attribute_set : Array[AbilityAttribute]) -> void:
 	for attribute : AbilityAttribute in attribute_set:
 		add_attribute(attribute)
 

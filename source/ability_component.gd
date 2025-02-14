@@ -1,4 +1,4 @@
-extends LogicComponent
+extends Node
 class_name AbilityComponent
 
 ## 技能组件，维护广义上的技能（BUFF、SKILL）等
@@ -6,7 +6,7 @@ class_name AbilityComponent
 
 @export var _abilities : Array[Ability]
 ## 技能触发器集
-@export var _ability_triggers : Dictionary[StringName, Array]
+@export_storage var _ability_triggers : Dictionary[StringName, Array]
 
 ## 技能释放前发出
 signal ability_cast_started(ability: Ability, context: Dictionary)
@@ -23,11 +23,12 @@ signal ability_trigger_failed(ability: Ability, context: Dictionary)
 ## 游戏事件处理完成
 signal game_event_handled(event_name: StringName, event_context: Dictionary)
 
-func _on_data_updated(data: Dictionary) -> void:
-	var ability_set : Array[Ability] = data.get("abilities", [])
-	var ability_context : Dictionary = data.get("ability_context", {})
+func setup(
+			ability_set: Array[Ability],
+			ability_context: Dictionary = {}
+		) -> void:
 	for ability in ability_set:
-		apply_ability(ability, ability_context.duplicate(true))
+		apply_ability(ability, ability_context)
 		print("ability_component: {0} 初始化".format([owner.to_string()]))
 
 #region 技能相关
