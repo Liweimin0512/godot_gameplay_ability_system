@@ -23,11 +23,24 @@ signal removed(context: Dictionary)
 signal cast_started(context: Dictionary)
 signal cast_finished(context: Dictionary)
 
+## 从数据字典初始化
+## [param data] 数据字典
+func _init_from_data(data : Dictionary) -> void:
+	var effectID : StringName = data.get("effect_id", "")
+	if effectID.is_empty():
+		GASLogger.info("Effect ID is empty, ability: %s" % ability_name)
+		return
+	var effect_config : Dictionary = DataManager.get_table_item("ability_action", effectID)
+	if effect_config.is_empty():
+		GASLogger.info("Effect config is empty, ability: %s" % ability_name)
+		return
+	effect_container = AbilitySystem.create_effect_from_config(effect_config)
+	if not effect_container:
+		GASLogger.error("Failed to load effect config from: %s" % effect_config_path)
+
 ## 应用技能
 func apply(context: Dictionary) -> void:
 	context.ability = self
-	if not effect_config_path.is_empty():
-		_load_effect_config()
 	_apply(context)
 	if is_auto_cast:
 		await cast(context)
@@ -78,17 +91,6 @@ func _can_cast(context: Dictionary) -> bool:
 
 func _cast(context: Dictionary) -> void:
 	pass
-
-## 从配置加载效果节点树
-func _load_effect_config() -> void:
-	if effect_config_path.is_empty():
-		return
-	var effect_config : Dictionary = DataManager.get_table_item("ability_action", effect_config_path)
-	var effect_tree = AbilitySystem.create_from_config(effect_config)
-	if effect_tree:
-		effect_container = effect_tree
-	else:
-		GASLogger.error("Failed to load effect config from: %s" % effect_config_path)
 
 func _to_string() -> String:
 	return ability_name

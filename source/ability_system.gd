@@ -89,7 +89,7 @@ func register_effect_node_type(type_name: String, script_path: String) -> void:
 	_logger.debug("Registered effect node type: %s" % type_name)
 
 ## 从配置数据创建效果节点树
-func create_from_config(config: Dictionary) -> AbilityAction:
+func create_effect_from_config(config: Dictionary) -> AbilityAction:
 	if not config.has("type"):
 		GASLogger.error("Effect node config must have 'type' field")
 		return null
@@ -122,14 +122,14 @@ func create_from_config(config: Dictionary) -> AbilityAction:
 	# 递归创建子节点
 	if config.has("children") and config.children is Array:
 		for child_config in config.children:
-			var child = create_from_config(child_config)
+			var child = create_effect_from_config(child_config)
 			if child and node.has_method("add_child"):
 				node.add_child(child)
 			else:
 				GASLogger.error("add child failed：%s" % [node_type])
 	elif config.has("child"):
 		var child_config :Dictionary = config.child
-		var child = create_from_config(child_config)
+		var child = create_effect_from_config(child_config)
 		if child and node.has_method("set_child"):
 			node.set_child(child)
 		else:

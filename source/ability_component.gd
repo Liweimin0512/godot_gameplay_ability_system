@@ -7,6 +7,8 @@ class_name AbilityComponent
 @export var _abilities : Array[Ability]
 ## 技能触发器集
 @export_storage var _ability_triggers : Dictionary[StringName, Array]
+## 技能标签
+@export var _ability_tags : Array[StringName] = []
 
 ## 技能释放前发出
 signal ability_cast_started(ability: Ability, context: Dictionary)
@@ -120,6 +122,20 @@ func remove_ability_trigger(trigger_type: StringName, trigger: DecoratorTrigger)
 		triggers.erase(trigger)
 		_ability_triggers[trigger_type] = triggers
 
+#endregion
+
+#region 标签相关
+func has_ability_tag(tag: StringName) -> bool:
+	return _ability_tags.has(tag)
+
+func get_ability_tags() -> Array[StringName]:
+	return _ability_tags
+
+func add_ability_tag(tag: StringName) -> void:
+	_ability_tags.append(tag)
+
+func remove_ability_tag(tag: StringName) -> void:
+	_ability_tags.erase(tag)
 #endregion
 
 #region 事件处理
