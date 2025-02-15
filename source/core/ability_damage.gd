@@ -31,11 +31,11 @@ var is_hit: bool = false
 ## 攻击力
 var _attack_value: float = 0.0:
 	get:
-		return attacker.ability_attribute_component.get_attribute_value("攻击力")
+		return attacker.ability_attribute_component.get_attribute_value("attack")
 ## 防御力
 var _defense_value: float = 0.0:
 	get:
-		return defender.ability_attribute_component.get_attribute_value("防御力")
+		return defender.ability_attribute_component.get_attribute_value("defense")
 ## 免伤比
 var _damage_reduction_ratio: float = 0.0:
 	get:
@@ -43,11 +43,11 @@ var _damage_reduction_ratio: float = 0.0:
 ## 暴击率
 var _crit_chance: float = 0.0:
 	get:
-		return attacker.ability_attribute_component.get_attribute_value("暴击率")
+		return attacker.ability_attribute_component.get_attribute_value("crit_rate")
 ## 命中
 var _hit_chance: float = 0.0:
 	get:
-		return attacker.ability_attribute_component.get_attribute_value("命中率")
+		return attacker.ability_attribute_component.get_attribute_value("hit_rate")
 ## 是否暴击
 var _is_critical: bool = false:
 	get:

@@ -21,8 +21,8 @@ var _initialized: bool = false
 
 ## 效果节点类型注册表
 var _effect_node_types: Dictionary[String, GDScript] = {}
-## 节点类型映射表
-var _default_node_types: Dictionary[String, String] = {
+## 效果节点路径映射表
+var _effect_path_types: Dictionary[String, String] = {
 	# 控制节点
 	"sequence": "res://addons/godot_gameplay_ability_system/source/ability_action/control_actions/control_sequence.gd",
 	"selector": "res://addons/godot_gameplay_ability_system/source/ability_action/control_actions/control_selector.gd",
@@ -54,6 +54,9 @@ var _default_node_types: Dictionary[String, String] = {
 var _resource_manager : CoreSystem.ResourceManager:
 	get:
 		return CoreSystem.resource_manager
+## 待加载效果脚本数量
+var _effect_loading_count : int = 0
+
 # endregion
 
 # region 公共方法
@@ -71,21 +74,27 @@ func initialize(
 	_logger.info("Initializing AbilitySystem...")
 	_resource_manager.resource_loaded.connect(
 		func(resource_path: String, resource: Resource):
-			if resource is GDScript:
-				_effect_node_types[resource_path] = resource
+			if resource_path in _effect_path_types.values():
+				var type_name := _effect_path_types.find_key(resource_path)
+				_effect_node_types[type_name] = resource
+				_effect_loading_count -= 1
+				if _effect_loading_count <= 0:
+					# 注册模型类型
+					_register_model_types(model_types, action_table_type, completed_callable)
 	)
 		
 	# 注册默认效果节点类型
 	_register_default_effect_nodes()
-	# 注册模型类型
-	_register_model_types(model_types, action_table_type, completed_callable)
 
 ## 注册效果节点类型
 func register_effect_node_type(type_name: String, script_path: String) -> void:
+	_effect_path_types[type_name] = script_path
 	if _effect_node_types.has(type_name):
 		_logger.warning("Effect node type already registered: %s" % type_name)
 		return
 	_resource_manager.load_resource(script_path, _resource_manager.LOAD_MODE.LAZY)
+	_effect_node_types[type_name] = null
+	_effect_loading_count += 1
 	_logger.debug("Registered effect node type: %s" % type_name)
 
 ## 从配置数据创建效果节点树
@@ -151,8 +160,8 @@ func create_ability_instance(ability_id: String) -> Ability:
 # region 私有方法
 ## 注册默认效果节点类型
 func _register_default_effect_nodes() -> void:
-	for type_name in _default_node_types:
-		var script_path: String = _default_node_types[type_name]
+	for type_name in _effect_path_types:
+		var script_path: String = _effect_path_types[type_name]
 		register_effect_node_type(type_name, script_path)
 
 func _register_ability_action_types(action_table_type: TableType, completed_callable: Callable = Callable()) -> void:

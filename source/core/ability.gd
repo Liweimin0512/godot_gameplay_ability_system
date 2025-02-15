@@ -15,8 +15,6 @@ class_name Ability
 @export var is_auto_cast: bool
 ## 效果容器
 @export var effect_container: AbilityAction
-## 效果配置文件路径
-@export_file("*.json") var effect_config_path: String
 
 signal applied(context: Dictionary)
 signal removed(context: Dictionary)
@@ -36,7 +34,7 @@ func _init_from_data(data : Dictionary) -> void:
 		return
 	effect_container = AbilitySystem.create_effect_from_config(effect_config)
 	if not effect_container:
-		GASLogger.error("Failed to load effect config from: %s" % effect_config_path)
+		GASLogger.error("Failed to load effect config from: %s" % effectID)
 
 ## 应用技能
 func apply(context: Dictionary) -> void:
@@ -57,7 +55,9 @@ func cast(context: Dictionary) -> bool:
 	cast_started.emit(context)
 	if not _can_cast(context):
 		return false
-	if not effect_container: return false
+	if not effect_container: 
+		GASLogger.error("Effect container is null, ability: %s" % ability_name)
+		return false
 	await _cast(context)
 	var result = await effect_container.execute(context)
 	cast_finished.emit(context)

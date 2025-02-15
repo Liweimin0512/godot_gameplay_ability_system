@@ -56,6 +56,7 @@ func get_same_ability(ability: Ability) -> Ability:
 func apply_ability(ability: Ability, ability_context: Dictionary) -> void:
 	ability_context.merge({
 		"tree": owner.get_tree(),
+		"ability_component": self,
 		})
 	ability.applied.connect(_on_ability_applied.bind(ability))
 	ability.cast_started.connect(_on_ability_cast_started.bind(ability))
