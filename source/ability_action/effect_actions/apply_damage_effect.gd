@@ -30,7 +30,36 @@ func _perform_action(context: Dictionary) -> STATUS:
 		return STATUS.FAILURE
 	var damage : AbilityDamage = AbilityDamage.new(caster, target, damage_type, is_indirect)
 	damage.apply_damage_modifier("percentage", _damage_multiplier - 1)
+	
+	# 发送伤害前事件
+	var ability_system = AbilitySystem.get_singleton()
+	ability_system.emit_game_event(
+		AbilitySystem.GameEventType.DAMAGE_START,
+		{
+			"ability_name": context.get("ability").ability_name,
+			"source": caster,
+			"target": target,
+			"damage_type": damage_type,
+			"damage": damage.get_damage(),
+			"chain_index": context.get("index", 0)
+		}
+	)
+	
 	await damage.apply_damage()
+	
+	# 发送伤害完成事件
+	ability_system.emit_game_event(
+		AbilitySystem.GameEventType.DAMAGE_END,
+		{
+			"ability_name": context.get("ability").ability_name,
+			"source": caster,
+			"target": target,
+			"damage_type": damage_type,
+			"damage": damage.get_damage(),
+			"chain_index": context.get("index", 0)
+		}
+	)
+	
 	return STATUS.SUCCESS
 
 func _description_getter() -> String:

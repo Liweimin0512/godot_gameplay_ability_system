@@ -11,6 +11,10 @@ signal initialized(success: bool)
 signal ability_activated(ability: Ability, activator: Node)
 ## 技能效果应用信号
 signal ability_effect_applied(effect: AbilityAction, target: Node)
+## 表现层事件信号
+signal presentation_event(event_type: PresentationType, context: Dictionary)
+## 游戏事件信号
+signal game_event(event_type: GameEventType, context: Dictionary)
 # endregion
 
 # region 变量定义
@@ -155,9 +159,91 @@ func create_ability_instance(ability_id: String) -> Ability:
 	
 	return ability_data
 
-# endregion
+#endregion
 
-# region 私有方法
+#region 表现层事件系统
+
+## 表现层事件类型
+enum PresentationType {
+	UNIT_ANIMATION,    # 单位动画
+	UNIT_EFFECT,      # 单位特效
+	GLOBAL_EFFECT,    # 全局特效
+	SOUND_EFFECT,     # 音效
+	CAMERA_EFFECT,    # 相机效果
+}
+
+## 发送表现层事件
+## context中的通用字段：
+## - target: Node2D 目标节点（对于单位相关的事件）
+## - resource: Resource 资源（动画名称、特效预设等）
+## - params: Dictionary 参数（blend_time、custom_speed等）
+## - callback: Callable 完成回调（可选）
+func emit_presentation_event(event_type: PresentationType, context: Dictionary) -> void:
+	presentation_event.emit(event_type, context)
+
+## 创建单位动画事件上下文
+static func create_animation_context(
+		target: Node2D, 
+		animation_name: String, 
+		params: Dictionary = {}, 
+		callback: Callable = Callable()
+	) -> Dictionary:
+	return {
+		"target": target,
+		"resource": animation_name,
+		"params": params,
+		"callback": callback
+	}
+
+## 创建单位特效事件上下文
+static func create_unit_effect_context(
+		target: Node2D,
+		effect_scene: PackedScene,
+		params: Dictionary = {},
+		callback: Callable = Callable()
+	) -> Dictionary:
+	return {
+		"target": target,
+		"resource": effect_scene,
+		"params": params,
+		"callback": callback
+	}
+
+## 创建全局特效事件上下文
+static func create_global_effect_context(
+		effect_scene: PackedScene,
+		position: Vector2,
+		params: Dictionary = {},
+		callback: Callable = Callable()
+	) -> Dictionary:
+	params.merge({"position": position})
+	return {
+		"resource": effect_scene,
+		"params": params,
+		"callback": callback
+	}
+
+#endregion
+
+#region 游戏事件系统
+
+## 游戏事件类型
+enum GameEventType {
+	ABILITY_START,        # 技能开始
+	ABILITY_END,         # 技能结束
+	DAMAGE_APPLIED,      # 伤害应用
+	EFFECT_APPLIED,      # 效果应用
+	HEAL_APPLIED,        # 治疗应用
+	STATUS_APPLIED,      # 状态应用
+}
+
+## 发送游戏事件
+func emit_game_event(event_type: GameEventType, context: Dictionary) -> void:
+	game_event.emit(event_type, context)
+
+#endregion
+
+#region 私有方法
 ## 注册默认效果节点类型
 func _register_default_effect_nodes() -> void:
 	for type_name in _effect_path_types:

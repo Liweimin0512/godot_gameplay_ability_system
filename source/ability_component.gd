@@ -141,6 +141,62 @@ func remove_ability_tag(tag: StringName) -> void:
 
 #region 事件处理
 
+func _ready() -> void:
+	AbilitySystem.get_singleton().presentation_event.connect(_on_presentation_event)
+
+## 处理表现层事件
+func _on_presentation_event(event_type: AbilitySystem.PresentationType, context: Dictionary) -> void:
+	# 只处理与当前单位相关的事件
+	if not context.has("target") or context.target != owner:
+		return
+	
+	match event_type:
+		AbilitySystem.PresentationType.UNIT_ANIMATION:
+			_handle_animation_event(context)
+		AbilitySystem.PresentationType.UNIT_EFFECT:
+			_handle_unit_effect_event(context)
+
+## 处理动画事件
+func _handle_animation_event(context: Dictionary) -> void:
+	if not owner.has_method("play_animation"):
+		GASLogger.error("Owner has no play_animation method")
+		return
+	
+	var params = context.get("params", {})
+	var blend_time = params.get("blend_time", 0.0)
+	var custom_speed = params.get("custom_speed", 1.0)
+	
+	# 播放动画
+	if context.has("callback"):
+		# 如果有回调，等待动画完成
+		await owner.play_animation(context.resource, blend_time, custom_speed)
+		context.callback.call()
+	else:
+		owner.play_animation(context.resource, blend_time, custom_speed)
+
+## 处理单位特效事件
+func _handle_unit_effect_event(context: Dictionary) -> void:
+	var effect_scene = context.resource as PackedScene
+	if not effect_scene:
+		GASLogger.error("Invalid effect scene")
+		return
+	
+	var effect_instance = effect_scene.instantiate()
+	owner.add_child(effect_instance)
+	
+	# 应用参数
+	for key in context.get("params", {}):
+		if effect_instance.has_property(key):
+			effect_instance.set(key, context.params[key])
+	
+	# 如果特效是一次性的，设置自动销毁
+	if effect_instance.has_method("_on_finished"):
+		effect_instance._on_finished.connect(func():
+			effect_instance.queue_free()
+			if context.has("callback"):
+				context.callback.call()
+		)
+
 func _on_ability_applied(context: Dictionary, ability: Ability) -> void:
 	ability_applied.emit(ability, context)
 

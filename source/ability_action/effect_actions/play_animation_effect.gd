@@ -17,17 +17,40 @@ var animation_unit_type: String = "caster"
 
 func _perform_action(context: Dictionary) -> STATUS:
 	var unit = context.get(animation_unit_type)
-	if not unit or not unit.has_method("play_animation"):
-		GASLogger.error("PlayAnimationNode unit {0} is null or unit has no play_animation method, animation_name: {1}".format([unit, animation_name]))
+	if not unit:
+		GASLogger.error("PlayAnimationNode unit is null")
 		return STATUS.FAILURE
-
+	
+	var ability_system = AbilitySystem.get_singleton()
+	if not ability_system:
+		GASLogger.error("AbilitySystem singleton not found")
+		return STATUS.FAILURE
+	
 	if wait_for_completion:
-		# 等待动画完成
-		GASLogger.info("PlayAnimationNode wait_for_completion: %s" % [animation_name])
-		await unit.play_animation(animation_name, blend_time, custom_speed)
-		GASLogger.info("PlayAnimationNode completed: %s" % [animation_name])
-	else:
-		unit.play_animation(animation_name, blend_time, custom_speed)
-		GASLogger.info("PlayAnimationNode unit.play_animation: %s" % [animation_name])
+		# 创建完成回调
+		var done = false
+		var callback = func():
+			done = true
 		
+		# 发送动画事件
+		var animation_context = AbilitySystem.create_animation_context(
+			unit,
+			animation_name,
+			{"blend_time": blend_time, "custom_speed": custom_speed},
+			callback
+		)
+		ability_system.emit_presentation_event(AbilitySystem.PresentationType.UNIT_ANIMATION, animation_context)
+		
+		# 等待动画完成
+		while not done:
+			await unit.get_tree().process_frame
+	else:
+		# 直接发送动画事件
+		var animation_context = AbilitySystem.create_animation_context(
+			unit,
+			animation_name,
+			{"blend_time": blend_time, "custom_speed": custom_speed}
+		)
+		ability_system.emit_presentation_event(AbilitySystem.PresentationType.UNIT_ANIMATION, animation_context)
+	
 	return STATUS.SUCCESS
