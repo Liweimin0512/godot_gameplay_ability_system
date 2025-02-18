@@ -44,7 +44,8 @@ func update(delta: float) -> void:
     last_update_time = Time.get_unix_time_from_system()
     _cached_values.clear()  # 清除缓存
 
-## 变量操作
+# 变量操作
+
 func set_variable(name: StringName, value) -> void:
     _variables[name] = value
     _cached_values.clear()  # 清除缓存，因为变量可能影响计算结果
@@ -55,7 +56,8 @@ func get_variable(name: StringName, default_value = null):
 func has_variable(name: StringName) -> bool:
     return _variables.has(name)
 
-## 标签操作
+# 标签操作
+
 func add_tag(tag: StringName) -> void:
     if not _tags.has(tag):
         _tags.append(tag)
@@ -66,7 +68,8 @@ func remove_tag(tag: StringName) -> void:
 func has_tag(tag: StringName) -> bool:
     return _tags.has(tag)
 
-## 目标操作
+# 目标操作
+
 func add_target(target: Node) -> void:
     if not additional_targets.has(target):
         additional_targets.append(target)
@@ -81,13 +84,14 @@ func get_all_targets() -> Array[Node]:
     targets.append_array(additional_targets)
     return targets
 
-## 计算值缓存
+# 计算值缓存
+
 func get_cached_value(key: StringName, calculator: Callable):
     if not _cached_values.has(key):
         _cached_values[key] = calculator.call()
     return _cached_values[key]
 
-## 创建副本
+# 创建副本
 func create_copy() -> AbilityContext:
     var copy := AbilityContext.new()
     copy.ability = ability

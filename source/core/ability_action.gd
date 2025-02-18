@@ -31,9 +31,19 @@ signal revoked(status: STATUS)
 func _init():
 	resource_local_to_scene = true
 
-## 获取节点, 子类实现
-func get_node(action_name: StringName) -> AbilityAction:
+## 获取节点
+func get_action(action_name: StringName) -> AbilityAction:
 	return _get_action(action_name)
+
+## 检查是否可以执行
+func can_execute(context: Dictionary) -> bool:
+	return _can_execute(context)
+
+
+## 应用
+func apply(context: Dictionary) -> void:
+	_apply(context)
+
 
 ## 执行
 func execute(context: Dictionary) -> STATUS:
@@ -41,10 +51,10 @@ func execute(context: Dictionary) -> STATUS:
 	state = await _execute(context)
 	if state == STATUS.SUCCESS:
 		is_executed = true
+		executed.emit(state)
 	else:
 		## 执行失败，撤销
 		revoke(context)
-	executed.emit(state)
 	return state
 
 ## 撤销
@@ -52,28 +62,57 @@ func revoke(context: Dictionary) -> bool:
 	if not enabled: return false
 	# 如果不能撤销（没有执行过），则直接成功
 	if not is_executed: return true
-	var ok = await _revoke(context)
+	var ok = _revoke(context)
 	revoked.emit(ok)
 	return ok
 
+
+## 更新
+func update(delta: float) -> void:
+	_update(delta)
+
+
+## 解析参数
+func _resolve_parameter(param: String, context: AbilityContext) -> Variant:
+	if param.begins_with("@data:"):
+		return context.ability.data.get(param.substr(6))
+	elif param.begins_with("@var:"):
+		return context.get_variable(param.substr(5))
+	return param
+
+func _apply(_context: Dictionary) -> void:
+	pass
+
 ## 子类中实现的执行方法
-func _execute(context: Dictionary) -> STATUS:
+func _execute(_context: Dictionary) -> STATUS:
 	return STATUS.SUCCESS
 
+
 ## 子类中实现的撤销方法
-func _revoke(context: Dictionary) -> bool:
+func _revoke(_context: Dictionary) -> bool:
 	return true
 
-func _get_action(action_name: StringName) -> AbilityAction:
-	if action_name == "":
-		return self
-	return get_node(action_name)
 
-func _get_context_value(context: Dictionary, key: StringName) -> Variant:
-	if context.has(key):
-		return context[key]
-	GASLogger.error("AbilityAction {0}: _get_context_value: context not has key: {1}".format([_script_name, key]))
+## 更新
+func _update(_delta: float) -> void:
+	pass
+
+
+## 能否执行，子类实现
+func _can_execute(_context: Dictionary) -> bool:
+	return true
+
+
+## 获取子节点，子类实现
+func _get_action(_action_name: StringName) -> AbilityAction:
 	return null
+
+## 获取上下文值
+func _get_context_value(context: Dictionary, key: StringName) -> Variant:
+	if not context.has(key):
+		GASLogger.error("AbilityAction {0}: _get_context_value: context not has key: {1}".format([_script_name, key]))
+		return null
+	return context[key]
 
 func _to_string() -> String:
 	if action_name == "":
