@@ -27,24 +27,23 @@ func apply(context: Dictionary) -> void:
 	context.ability = self
 	context.merge(config, true)
 	# 应用动作树
-	await AbilitySystem.action_tree_manager.apply_action_tree(action_tree_id, context)
+	await AbilitySystem.action_manager.apply_action_tree(action_tree_id, context)
 
 
 ## 移除技能
 func remove(context: Dictionary) -> void:
 	# 移除动作树
-	AbilitySystem.action_tree_manager.remove_action_tree(action_tree_id, context)
+	AbilitySystem.action_manager.remove_action_tree(action_tree_id, context)
 
 
 ## 能否执行
 func can_cast(context: Dictionary) -> bool:
-	return AbilitySystem.action_tree_manager.can_cast_action_tree(action_tree_id, context)
+	return AbilitySystem.action_manager.can_execute_action_tree(action_tree_id, context)
 
 
 ## 执行技能
 func cast(context: Dictionary) -> void:
-	await AbilitySystem.action_tree_manager.cast_action_tree(action_tree_id, context)
-
+	await AbilitySystem.action_manager.execute_action_tree(action_tree_id, context)
 
 #region 标签相关
 

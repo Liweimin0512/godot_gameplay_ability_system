@@ -8,7 +8,6 @@ custom_minimum_size = Vector2(0, 34)
 offset_right = 56.0
 offset_bottom = 10.0
 script = ExtResource("1_b15e4")
-ability_resource_colors = null
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 unique_name_in_owner = true

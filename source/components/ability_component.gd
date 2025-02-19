@@ -54,30 +54,17 @@ func apply_ability(ability: Ability, ability_context: Dictionary) -> void:
 		"tree": owner.get_tree(),
 		"ability_component": self,
 		})
-	ability.applied.connect(_on_ability_applied.bind(ability))
-	ability.cast_started.connect(_on_ability_cast_started.bind(ability))
-	ability.cast_finished.connect(_on_ability_cast_finished.bind(ability))
-	ability.removed.connect(_on_ability_removed.bind(ability))
 	ability.apply(ability_context)
 	_abilities.append(ability)
 
 ## 移除技能
 func remove_ability(ability: Ability, context: Dictionary) -> void:
-	if ability.applied.is_connected(_on_ability_applied):
-		ability.applied.disconnect(_on_ability_applied.bind(ability))
-	if ability.cast_started.is_connected(_on_ability_cast_started):
-		ability.cast_started.disconnect(_on_ability_cast_started.bind(ability))
-	if ability.cast_finished.is_connected(_on_ability_cast_finished):
-		ability.cast_finished.disconnect(_on_ability_cast_finished.bind(ability))
-	if ability.removed.is_connected(_on_ability_removed):
-		ability.removed.disconnect(_on_ability_removed.bind(ability))
 	ability.remove(context)
 	_abilities.erase(ability)
 
 ## 尝试释放技能
-func try_cast_ability(ability: Ability, context: Dictionary) -> bool:
-	var ok = await ability.cast(context)
-	return ok
+func try_cast_ability(ability: Ability, context: Dictionary) -> void:
+	await ability.cast(context)
 
 #endregion
 
@@ -93,22 +80,6 @@ func add_ability_tag(tag: StringName) -> void:
 
 func remove_ability_tag(tag: StringName) -> void:
 	_ability_tags.erase(tag)
-#endregion
-
-#region 技能相关
-
-func _on_ability_applied(context: Dictionary, ability: Ability) -> void:
-	ability_applied.emit(ability, context)
-
-func _on_ability_removed(context: Dictionary, ability: Ability) -> void:
-	ability_removed.emit(ability, context)
-
-func _on_ability_cast_started(context: Dictionary, ability: Ability) -> void:
-	ability_cast_started.emit(ability, context)
-
-func _on_ability_cast_finished(context: Dictionary, ability: Ability) -> void:
-	ability_cast_finished.emit(ability, context)
-
 #endregion
 
 func _to_string() -> String:

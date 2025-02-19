@@ -21,7 +21,6 @@ func _update(delta: float) -> void:
 	for child in children:
 		child.update(delta)
 
-
 func _get_action(action_name: StringName) -> AbilityAction:
 	for child in children:
 		if child.action_name == action_name:

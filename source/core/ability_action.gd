@@ -1,3 +1,4 @@
+@tool
 extends Resource
 class_name AbilityAction
 
@@ -14,6 +15,10 @@ enum STATUS {
 
 ## 是否启用
 @export var enabled := true
+## 前摇延时
+@export var pre_delay: float = 0.0
+## 后摇延时
+@export var post_delay: float = 0.0
 
 ## 节点状态
 var state : STATUS = STATUS.SUCCESS
@@ -23,17 +28,21 @@ var _script_name: StringName = "":
 ## 执行过了，有些技能需要条件判断，条件不满足需要撤回到不满足的步骤
 var is_executed: bool = false
 
-## 节点执行完成
-signal executed(status: STATUS)
-## 节点撤销完成
-signal revoked(status: STATUS)
+#signal created
+signal applied(context: Dictionary)
+signal executing(context: Dictionary)
+signal executed(context: Dictionary)
+signal revoked(context: Dictionary)
 
 func _init():
 	resource_local_to_scene = true
+	#created.emit()
+
 
 ## 获取节点
 func get_action(action_name: StringName) -> AbilityAction:
 	return _get_action(action_name)
+
 
 ## 检查是否可以执行
 func can_execute(context: Dictionary) -> bool:
@@ -43,19 +52,28 @@ func can_execute(context: Dictionary) -> bool:
 ## 应用
 func apply(context: Dictionary) -> void:
 	_apply(context)
+	applied.emit(context)
 
 
 ## 执行
 func execute(context: Dictionary) -> STATUS:
 	if not enabled: return STATUS.FAILURE
+	executing.emit(context)
+	if pre_delay > 0.0:
+		GASLogger.debug("ability_action pre_delay: %s" % [pre_delay])
+		await AbilitySystem.get_tree().create_timer(pre_delay).timeout
 	state = await _execute(context)
 	if state == STATUS.SUCCESS:
 		is_executed = true
-		executed.emit(state)
+		executed.emit(context)
+		if post_delay > 0.0:
+			GASLogger.debug("ability_action post_delay: %s" % [post_delay])
+			await AbilitySystem.get_tree().create_timer(post_delay).timeout
 	else:
 		## 执行失败，撤销
 		revoke(context)
 	return state
+
 
 ## 撤销
 func revoke(context: Dictionary) -> bool:
@@ -107,12 +125,14 @@ func _can_execute(_context: Dictionary) -> bool:
 func _get_action(_action_name: StringName) -> AbilityAction:
 	return null
 
+
 ## 获取上下文值
 func _get_context_value(context: Dictionary, key: StringName) -> Variant:
 	if not context.has(key):
 		GASLogger.error("AbilityAction {0}: _get_context_value: context not has key: {1}".format([_script_name, key]))
 		return null
 	return context[key]
+
 
 func _to_string() -> String:
 	if action_name == "":

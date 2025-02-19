@@ -17,6 +17,7 @@ class_name ApplyDamageEffect
 ## 是否为间接伤害
 @export var is_indirect: bool = false
 
+
 func _perform_action(context: Dictionary) -> STATUS:
 	if context.get("ability").ability_name == "漩涡约束":
 		pass
@@ -24,7 +25,7 @@ func _perform_action(context: Dictionary) -> STATUS:
 	
 	var repeat_index = context.get("repeat_index", null)
 	if repeat_index != null:
-		_damage_multiplier_array = context.get(damage_multiplier_array_property, _damage_multiplier_array)
+		damage_multiplier_array = context.get(damage_multiplier_array_property, damage_multiplier_array)
 		GASLogger.debug("DealDamageEffectNode repeat_index: %s" % [repeat_index])
 		_damage_multiplier = damage_multiplier_array[repeat_index - 1]
 	else:
@@ -71,6 +72,11 @@ func _perform_action(context: Dictionary) -> STATUS:
 	)
 	
 	return STATUS.SUCCESS
+
+
+func _validate_property(property: Dictionary) -> void:
+	pass
+
 
 func _description_getter() -> String:
 	var _type_name: String

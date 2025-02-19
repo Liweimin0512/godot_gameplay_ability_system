@@ -6,9 +6,9 @@ class_name W_Buff
 @onready var texture_rect: TextureRect = $TextureRect
 @onready var label: Label = $Label
 
-var buff : BuffAbility
+var buff : Ability
 
-func setup(p_buff: BuffAbility) -> void:
+func setup(p_buff: Ability) -> void:
 	buff = p_buff
 	texture_rect.texture = buff.icon
 	label.text = str(buff.value)

@@ -17,7 +17,7 @@ func _perform_action(context: Dictionary = {}) -> STATUS:
 	ability_context.merge(context, true)
 	_ability = AbilitySystem.create_ability(ability_id)	
 	ability_component.apply_ability(_ability, ability_context)
-	GASLogger.info("对目标应用Ability:{0}".format([ability]))
+	GASLogger.info("对目标应用Ability:{0}".format([_ability]))
 	return STATUS.SUCCESS
 
 ## 撤回效果
@@ -28,5 +28,5 @@ func _revoke_action(context: Dictionary) -> bool:
 		return false
 	var ability_component : AbilityComponent = target.ability_component
 	ability_component.remove_ability(_ability, ability_context)
-	GASLogger.info("撤回目标应用Ability:{0}".format([ability]))
+	GASLogger.info("撤回目标应用Ability:{0}".format([_ability]))
 	return true

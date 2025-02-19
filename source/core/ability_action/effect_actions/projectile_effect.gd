@@ -34,7 +34,7 @@ func _perform_action(context: Dictionary) -> STATUS:
 		# 等待投射物命中
 		var distance = from_pos.distance_to(to_pos)
 		var duration = distance / speed
-		await get_tree().create_timer(duration).timeout
+		await AbilitySystem.get_tree().create_timer(duration).timeout
 		
 		# 发送投射物命中事件
 		ability_system.emit_game_event(
