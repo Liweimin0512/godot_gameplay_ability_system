@@ -35,17 +35,17 @@ var _action_loading_count : int = 0
 var _resource_manager: CoreSystem.ResourceManager
 var _data_manager : DataManager
 var _action_table_type : TableType
-var _is_initialized : bool = false
 
 ## 效果树缓存
 var _action_trees: Dictionary[StringName, AbilityAction] = {}
+
 
 ## 初始化
 func initialize(resource_manager : CoreSystem.ResourceManager , data_manager : DataManager, 
 		action_paths: Dictionary, action_table_type : TableType) -> void:
 	if _initialized:
 		return
-	GASLogger.debug("ability action manager initialize start!")
+	
 	_resource_manager = resource_manager
 	_data_manager = data_manager
 	_action_table_type = action_table_type
@@ -53,7 +53,6 @@ func initialize(resource_manager : CoreSystem.ResourceManager , data_manager : D
 		# 配置加载完成初始化完成
 		initialized.emit(true)
 		_initialized = true
-		GASLogger.debug("ability action manager initialize completed!")
 	var resource_load_callable : Callable = func(resource_path: String, resource: Resource):
 		if resource_path in _action_path_types.values():
 			var type_name := _action_path_types.find_key(resource_path)
@@ -150,14 +149,12 @@ func _create_action_from_config(config: Dictionary) -> AbilityAction:
 		GASLogger.error("Unknown action tree type: %s" % node_type)
 		return null
 		
-	var node_script : GDScript = _action_node_types[node_type]
+	var node_script = _action_node_types[node_type]
 	var node : AbilityAction = node_script.new()
 	
 	# 设置节点属性
 	for key in config:
 		if key == "children" or key == "child":
-			continue
-		if key == "type":
 			continue
 		var has_property = false
 		for p in node.get_property_list():
@@ -193,9 +190,6 @@ func _create_action_from_config(config: Dictionary) -> AbilityAction:
 
 
 func _connect_action_node_signals(node: AbilityAction) -> void:
-	#node.created.connect(func(context: Dictionary):
-		#AbilitySystem.push_ability_event("action_created", [node, context])
-	#)
 	node.applied.connect(func(context: Dictionary):
 		AbilitySystem.push_ability_event("action_applied", [node, context])
 	)
