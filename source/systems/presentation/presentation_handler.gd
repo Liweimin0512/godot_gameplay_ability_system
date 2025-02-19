@@ -17,5 +17,8 @@ func _get_targets(config: Dictionary, context: Dictionary) -> Array[Node]:
 	if target_type == "actor":
 		targets.append(context.get("caster"))
 	elif target_type == "target":
-		targets.append_array(context.get("targets"))
+		targets.append_array(context.get("targets", []))
+		var target : Node = context.get("target", [])
+		if target:
+			targets.append(target)
 	return targets

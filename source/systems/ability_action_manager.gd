@@ -76,7 +76,7 @@ func apply_action_tree(action_tree_id: StringName, context: Dictionary) -> void:
 		GASLogger.error("Failed to load action tree: %s" % action_tree_id)
 		return
 	action_tree.apply(context)
-	AbilitySystem.push_ability_event("action_tree_applied", [action_tree, context])
+	#AbilitySystem.push_ability_event("action_tree_applied", context)
 
 
 ## 移除行动树缓存
@@ -85,7 +85,7 @@ func remove_action_tree(action_tree_id: StringName, context: Dictionary) -> void
 	if not action_tree:
 		return
 	action_tree.revoke(context)
-	AbilitySystem.push_ability_event("action_tree_revoked", [action_tree, context])
+	#AbilitySystem.push_ability_event("action_tree_revoked", context)
 
 
 ## 执行行动树
@@ -93,10 +93,9 @@ func execute_action_tree(action_tree_id: StringName, context: Dictionary) -> voi
 	var action_tree : AbilityAction = get_action_tree(action_tree_id)
 	if not action_tree:
 		return
-	AbilitySystem.push_ability_event("action_tree_executing", [action_tree, context])
+	#AbilitySystem.push_ability_event("action_tree_executing", context)
 	await action_tree.execute(context)
-	AbilitySystem.push_ability_event("action_tree_executed", [action_tree, context])
-
+	#AbilitySystem.push_ability_event("action_tree_executed", context)
 
 ## 能否执行行动树
 func can_execute_action_tree(action_tree_id: StringName, context: Dictionary) -> bool:
@@ -156,6 +155,8 @@ func _create_action_from_config(config: Dictionary) -> AbilityAction:
 	for key in config:
 		if key == "children" or key == "child":
 			continue
+		if key == "type":
+			continue
 		var has_property = false
 		for p in node.get_property_list():
 			if p.name == key:
@@ -185,20 +186,24 @@ func _create_action_from_config(config: Dictionary) -> AbilityAction:
 		else:
 			GASLogger.error("set child failed! %s" %[node_type])
 
-	_connect_action_node_signals(node)
+	#_connect_action_node_signals(node)
 	return node
 
 
 func _connect_action_node_signals(node: AbilityAction) -> void:
 	node.applied.connect(func(context: Dictionary):
-		AbilitySystem.push_ability_event("action_applied", [node, context])
+		if node.action_name.is_empty(): return
+		AbilitySystem.push_ability_event("action_applied", context)
 	)
 	node.executing.connect(func(context: Dictionary):
-		AbilitySystem.push_ability_event("action_executing", [node, context])
+		if node.action_name.is_empty(): return
+		AbilitySystem.push_ability_event("action_executing", context)
 	)
 	node.executed.connect(func(context: Dictionary):
-		AbilitySystem.push_ability_event("action_executed", [node, context])
+		if node.action_name.is_empty(): return
+		AbilitySystem.push_ability_event("action_executed", context)
 	)
 	node.revoked.connect(func(context: Dictionary):
-		AbilitySystem.push_ability_event("action_revoked", [node, context])
+		if node.action_name.is_empty(): return
+		AbilitySystem.push_ability_event("action_revoked", context)
 	)

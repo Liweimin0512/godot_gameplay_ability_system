@@ -38,19 +38,11 @@ func _init():
 	resource_local_to_scene = true
 	#created.emit()
 
-
-## 获取节点
-func get_action(action_name: StringName) -> AbilityAction:
-	return _get_action(action_name)
-
-
-## 检查是否可以执行
-func can_execute(context: Dictionary) -> bool:
-	return _can_execute(context)
-
-
 ## 应用
 func apply(context: Dictionary) -> void:
+	context.merge({
+		"ability_action": self
+	}, true)
 	_apply(context)
 	applied.emit(context)
 
@@ -58,6 +50,9 @@ func apply(context: Dictionary) -> void:
 ## 执行
 func execute(context: Dictionary) -> STATUS:
 	if not enabled: return STATUS.FAILURE
+	context.merge({
+		"ability_action": self
+	}, true)
 	executing.emit(context)
 	if pre_delay > 0.0:
 		GASLogger.debug("ability_action pre_delay: %s" % [pre_delay])
@@ -81,8 +76,21 @@ func revoke(context: Dictionary) -> bool:
 	# 如果不能撤销（没有执行过），则直接成功
 	if not is_executed: return true
 	var ok = _revoke(context)
+	context.merge({
+		"ability_action": self
+	}, true)
 	revoked.emit(ok)
 	return ok
+
+
+## 获取节点
+func get_action(action_name: StringName) -> AbilityAction:
+	return _get_action(action_name)
+
+
+## 检查是否可以执行
+func can_execute(context: Dictionary) -> bool:
+	return _can_execute(context)
 
 
 ## 更新

@@ -87,21 +87,26 @@ var damage_value: float = 0.0:
 func _init(
 		p_attacker: Node = null, 
 		p_defender: Node = null, 
-		p_damage_type: DAMAGE_TYPE = DAMAGE_TYPE.PHYSICAL, 
+		p_damage_type: DAMAGE_TYPE = DAMAGE_TYPE.PHYSICAL,
+		modify_percentage: float = 0.0,
+		modify_value: float = 0.0,
 		p_is_indirect: bool = false) -> void:
 	attacker = p_attacker
 	defender = p_defender
 	damage_type = p_damage_type
+	_modify_percentage = modify_percentage
+	_modify_value = modify_value
 	is_indirect = p_is_indirect
 
 ## 造成伤害
 func apply_damage() -> void:
-	if is_indirect:
-		# 如果为间接伤害，则防守方受到伤害（触发受击事件）
-		await defender.hurt(attacker, self)
-	elif attacker:
-		# 如果为直接伤害，则攻击方攻击（触发攻击事件）
-		await attacker.hit(self)
+	var ability_resource_component: AbilityResourceComponent = defender.ability_resource_component
+	var health_resource : AbilityResource = ability_resource_component.get_resource("health")
+	if not health_resource: 
+		GASLogger.error("can not found health resource")
+		return
+	health_resource.consume(damage_value)
+
 
 ## 应用伤害修饰器（比如增伤、减伤效果）
 func apply_damage_modifier(modifier_type: String, value: float) -> void:

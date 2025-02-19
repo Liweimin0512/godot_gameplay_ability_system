@@ -46,7 +46,7 @@ var _event_bus : CoreSystem.EventBus:
 
 ## 初始化完成信号
 signal initialized(success: bool)
-signal ability_event(event_name : StringName, payload: Array)
+signal ability_event(event_name : StringName, context : Dictionary)
 
 # region 公共方法
 
@@ -87,11 +87,9 @@ func create_ability_instance(ability_id: String) -> Ability:
 # 事件相关
 
 ## 发送技能事件
-func push_ability_event(event_name: StringName, payload : Variant = []) -> void:
-	_event_bus.push_event(_get_ability_event_name(event_name), payload)
-	if not payload is Array:
-		payload = [payload]
-	ability_event.emit(event_name, payload)
+func push_ability_event(event_name: StringName, context : Dictionary = {}) -> void:
+	_event_bus.push_event(_get_ability_event_name(event_name), context)
+	ability_event.emit(event_name, context)
 
 ## 订阅技能事件
 func subscribe_ability_event(event_name: StringName, callback: Callable) -> void:

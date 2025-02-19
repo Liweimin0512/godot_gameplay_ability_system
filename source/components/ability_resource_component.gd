@@ -92,12 +92,6 @@ func consume_resources(res_id: StringName, cost: int) -> bool:
 func get_resources() -> Array[AbilityResource]:
 	return _ability_resources.values()
 
-## 应用伤害
-func apply_damage(damage: AbilityDamage) -> void:
-	for res : AbilityResource in get_resources():
-		if res.has_method("apply_damage"):
-			res.call("apply_damage", damage)
-
 ## 消耗技能
 func cost_ability(ability: Ability, context: Dictionary) -> bool:
 	if not ability.ability_cost.can_cost(context):
