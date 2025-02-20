@@ -4,9 +4,14 @@ class_name ProjectileEffect
 
 ## 投射物效果
 
-
+## 投射物速度
 @export var speed: float = 500.0
+## 是否等待投射物碰撞
 @export var wait_for_hit: bool = true
+## 起始位置挂点
+@export var from_node_type : StringName = ""
+## 目标位置挂点
+@export var to_node_type : StringName = ""
 
 func _perform_action(context: Dictionary) -> STATUS:
 	var from_pos = context.get("from")
@@ -36,16 +41,32 @@ func _perform_action(context: Dictionary) -> STATUS:
 		var duration = distance / speed
 		await AbilitySystem.get_tree().create_timer(duration).timeout
 		
-		# 发送投射物命中事件
-		ability_system.emit_game_event(
-			AbilitySystem.GameEventType.PROJECTILE_HIT,
-			{
-				"ability_name": context.get("ability_name"),
-				"hit_position": to_pos,
-				"source": context.get("source"),
-				"target": context.get("target"),
-				"chain_index": context.get("index", 0)
-			}
-		)
+	# 发送投射物命中事件
+	ability_system.emit_game_event(
+		AbilitySystem.GameEventType.PROJECTILE_HIT,
+		{
+			"ability_name": context.get("ability_name"),
+			"hit_position": to_pos,
+			"source": context.get("source"),
+			"target": context.get("target"),
+			"chain_index": context.get("index", 0)
+		}
+	)
 	
 	return STATUS.SUCCESS
+
+class ProjectileConfig:
+	@export var speed: float = 500.0
+	@export var wait_for_hit: bool = true
+
+	func to_dict() -> Dictionary:
+		return {
+			"speed": speed,
+			"wait_for_hit": wait_for_hit
+		}
+
+	static func from_dict(dict: Dictionary) -> ProjectileConfig:
+		var config = ProjectileConfig.new()
+		config.speed = dict.get("speed", 500.0)
+		config.wait_for_hit = dict.get("wait_for_hit", true)
+		return config

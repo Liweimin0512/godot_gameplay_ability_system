@@ -53,6 +53,7 @@ func execute(context: Dictionary) -> STATUS:
 	context.merge({
 		"ability_action": self
 	}, true)
+	#TODO 动态数据解析
 	executing.emit(context)
 	if pre_delay > 0.0:
 		GASLogger.debug("ability_action pre_delay: %s" % [pre_delay])
@@ -98,14 +99,6 @@ func update(delta: float) -> void:
 	_update(delta)
 
 
-## 解析参数
-func _resolve_parameter(param: String, context: AbilityContext) -> Variant:
-	if param.begins_with("@data:"):
-		return context.ability.data.get(param.substr(6))
-	elif param.begins_with("@var:"):
-		return context.get_variable(param.substr(5))
-	return param
-
 func _apply(_context: Dictionary) -> void:
 	pass
 
@@ -140,6 +133,15 @@ func _get_context_value(context: Dictionary, key: StringName) -> Variant:
 		GASLogger.error("AbilityAction {0}: _get_context_value: context not has key: {1}".format([_script_name, key]))
 		return null
 	return context[key]
+
+
+## 解析参数
+func _resolve_parameter(param: String, context: AbilityContext) -> Variant:
+	if param.begins_with("@data:"):
+		return context.ability.data.get(param.substr(6))
+	elif param.begins_with("@var:"):
+		return context.get_variable(param.substr(5))
+	return param
 
 
 func _to_string() -> String:

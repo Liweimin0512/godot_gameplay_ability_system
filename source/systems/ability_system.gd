@@ -59,14 +59,13 @@ func initialize(
 		action_table_type: TableType,
 		presentation_table_type: TableType,
 		action_paths: Dictionary = {},
-		action_handlers: Dictionary = {},
 		) -> void:
 	if _initialized:
 		return
 	_logger.info("Initializing AbilitySystem...")
 	action_manager.initialized.connect(
 		func(success: bool):
-			presentation_manager.initialize(presentation_table_type, action_handlers)
+			presentation_manager.initialize(presentation_table_type)
 	)
 	var _on_model_loaded = func(_result: Array[String], success: bool):
 		initialized.emit(success)

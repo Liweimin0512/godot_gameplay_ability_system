@@ -27,7 +27,7 @@ var _action_path_types: Dictionary[String, String] = {
 	"modify_attribute": "res://addons/godot_gameplay_ability_system/source/core/ability_action/effect_actions/modify_attribute_effect.gd",
 	"modify_ability_resource": "res://addons/godot_gameplay_ability_system/source/core/ability_action/effect_actions/modify_ability_resource_effect.gd",
 	"modify_damage": "res://addons/godot_gameplay_ability_system/source/core/ability_action/effect_actions/modify_damage_effect.gd",
-	"projectile": "res://addons/godot_gameplay_ability_system/source/core/ability_action/effect_actions/projectile_effect.gd",
+	# "spawn_projectile": "res://addons/godot_gameplay_ability_system/source/core/ability_action/effect_actions/projectile_effect.gd",
 }
 ## 待加载效果脚本数量
 var _action_loading_count : int = 0
@@ -97,6 +97,7 @@ func execute_action_tree(action_tree_id: StringName, context: Dictionary) -> voi
 	await action_tree.execute(context)
 	#AbilitySystem.push_ability_event("action_tree_executed", context)
 
+
 ## 能否执行行动树
 func can_execute_action_tree(action_tree_id: StringName, context: Dictionary) -> bool:
 	var action_tree : AbilityAction = get_action_tree(action_tree_id)
@@ -164,8 +165,6 @@ func _create_action_from_config(config: Dictionary) -> AbilityAction:
 				break
 		if has_property:  # 只设置节点已有的属性
 			var value = config[key]
-			# if key == "ability":
-			# 	value = value as Ability
 			node.set(key, value)
 		else:
 			GASLogger.error("set property failed! key: %s, node_type: %s" % [key, node_type])
@@ -187,6 +186,7 @@ func _create_action_from_config(config: Dictionary) -> AbilityAction:
 			GASLogger.error("set child failed! %s" %[node_type])
 
 	#_connect_action_node_signals(node)
+	node.set_meta("config", config)
 	return node
 
 
