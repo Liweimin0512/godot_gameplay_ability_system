@@ -10,11 +10,11 @@ func _init(config : Dictionary = {}) -> void:
     cooldown_time = config.get("cooldown", 0.0)
     remaining_cooldown_time = cooldown_time
 
-func can_use(_context: Dictionary) -> bool:
+func can_execute(_context: Dictionary) -> bool:
     var can_use = remaining_cooldown_time <= 0
     if not can_use:
         can_use_reason = "cooldown"
     return can_use
 
-func on_ability_used(_context: Dictionary) -> void:
+func before_ability_execute(_context: Dictionary) -> void:
     remaining_cooldown_time = cooldown_time

@@ -25,9 +25,9 @@ func _exit_tree() -> void:
 func _register_custom_types() -> void:
 	add_custom_type("AbilityComponent", "Node", preload("source/core/ability_component.gd"), preload("icons/ability_component.svg"))
 	add_custom_type("AbilityResourceComponent", "Node", preload("source/ability_resources/ability_resource_component.gd"), preload("icons/ability_resource_component.svg"))
-	add_custom_type("AbilityAttributeComponent", "Node", preload("source/attributes/ability_attribute_component.gd"), preload("icons/ability_attribute_component.svg"))
+	add_custom_type("AbilityAttributeComponent", "Node", preload("source/ability_attributes/ability_attribute_component.gd"), preload("icons/ability_attribute_component.svg"))
 	add_custom_type("Ability", "Resource", preload("source/core/ability.gd"), preload("icons/ability.svg"))
-	add_custom_type("AbilityAttribute", "Resource", preload("source/attributes/ability_attribute.gd"), preload("icons/attribute.svg"))
+	add_custom_type("AbilityAttribute", "Resource", preload("source/ability_attributes/ability_attribute.gd"), preload("icons/attribute.svg"))
 	add_custom_type("AbilityResource", "Resource", preload("source/ability_resources/ability_resource.gd"), preload("icons/ability_resource.svg"))
 
 ## 移除自定义类型

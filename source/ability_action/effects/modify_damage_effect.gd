@@ -28,3 +28,4 @@ func _description_getter() -> String:
 	var modify_name : String = "%" if modify_type == "percentage" else "点"
 	var modify : String = "增加" if modify_value > 0 else "减少"
 	return "使伤害{0} {1} {2}".format([modify, modify_value, modify_name])
+

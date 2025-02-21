@@ -63,8 +63,8 @@ func remove_ability(ability: Ability, context: Dictionary) -> void:
 	_abilities.erase(ability)
 
 ## 尝试释放技能
-func try_cast_ability(ability: Ability, context: Dictionary) -> void:
-	await ability.cast(context)
+func try_execute_ability(ability: Ability, context: Dictionary) -> void:
+	await ability.execute(context)
 
 #endregion
 

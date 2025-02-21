@@ -8,13 +8,18 @@ const BASE_PATH := "res://addons/godot_gameplay_ability_system"
 
 ## 技能事件名前缀
 @export var ability_event_prefix: StringName = "ability"
+# 注册的限制器类型
+var _restriction_types : Dictionary = {
+	&"cooldown": CooldownRestriction,
+	&"usage_count": UsageCountRestriction,
+	&"resource_cost": ResourceCostRestriction,
+}
 
-var trigger_manager : AbilityTriggerManager:
+var trigger_manager : CoreSystem.TriggerManager:
 	get:
-		if not trigger_manager:
-			trigger_manager = AbilityTriggerManager.new()
-			add_child(trigger_manager)
-		return trigger_manager
+		return CoreSystem.trigger_manager
+	set(_value):
+		push_error("trigger_manager is read-only")
 var action_manager : ActionManagerInterface:
 	get:
 		if not action_manager:
@@ -85,6 +90,18 @@ func create_ability_instance(ability_id: String) -> Ability:
 
 # 事件相关
 
+## 处理游戏事件
+func handle_game_event(event_name: StringName, context : Dictionary = {}) -> void:
+	trigger_manager.handle_event(_get_ability_event_name(event_name), context)
+
+## 添加触发器
+func register_trigger(trigger_type: StringName, trigger: Trigger) -> void:
+	trigger_manager.register_trigger(trigger_type, trigger)
+
+## 移除触发器
+func unregister_trigger(trigger_type: StringName, trigger: Trigger) -> void:
+	trigger_manager.unregister_trigger(trigger_type, trigger)
+
 ## 发送技能事件
 func push_ability_event(event_name: StringName, context : Dictionary = {}) -> void:
 	_event_bus.push_event(_get_ability_event_name(event_name), context)
@@ -100,6 +117,27 @@ func unsubscribe_ability_event(event_name: StringName, callback: Callable) -> vo
 
 func _get_ability_event_name(event_name: StringName) -> StringName:
 	return ability_event_prefix + "_" + event_name
+
+
+# 限制器相关
+
+## 注册限制器类型
+func register_restriction_type(type: StringName, restriction_class: GDScript) -> void:
+	_restriction_types[type] = restriction_class
+	
+## 注销限制器类型
+func unregister_restriction_type(type: StringName) -> void:
+	_restriction_types.erase(type)
+
+## 创建限制器实例
+func create_restriction(config: Dictionary) -> AbilityRestriction:
+	var type = config.get("type", "")
+	if not _restriction_types.has(type):
+		GASLogger.error("Unknown restriction type: %s" % type)
+		return null
+		
+	var restriction_class = _restriction_types[type]
+	return restriction_class.new(config)
 
 #endregion
 
