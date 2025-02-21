@@ -89,16 +89,6 @@ func get_action(action_name: StringName) -> AbilityAction:
 	return _get_action(action_name)
 
 
-## 检查是否可以执行
-func can_execute(context: Dictionary) -> bool:
-	return _can_execute(context)
-
-
-## 更新
-func update(delta: float) -> void:
-	_update(delta)
-
-
 func _apply(_context: Dictionary) -> void:
 	pass
 
@@ -109,16 +99,6 @@ func _execute(_context: Dictionary) -> STATUS:
 
 ## 子类中实现的撤销方法
 func _revoke(_context: Dictionary) -> bool:
-	return true
-
-
-## 更新
-func _update(_delta: float) -> void:
-	pass
-
-
-## 能否执行，子类实现
-func _can_execute(_context: Dictionary) -> bool:
 	return true
 
 

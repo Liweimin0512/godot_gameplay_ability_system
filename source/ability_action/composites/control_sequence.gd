@@ -34,10 +34,3 @@ func _revoke(context: Dictionary) -> bool:
 			GASLogger.error("ControlSequenceAction revoke failed, because child {0} revoke failed".format([index]))
 			return false
 	return true
-
-
-## 检查子节点能否执行，如果不能则整体失败
-## [param context] 上下文
-## [return] 是否能够执行
-func _can_execute(context: Dictionary) -> bool:
-	return children.all(func(child: AbilityAction) -> bool: return child.can_execute(context))

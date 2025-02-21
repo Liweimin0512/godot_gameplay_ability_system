@@ -16,6 +16,7 @@ func clear_child() -> void:
 	if not child: return
 	child = null
 
+
 func _apply(context: Dictionary) -> void:
 	if child:
 		child.apply(context)
@@ -23,16 +24,6 @@ func _apply(context: Dictionary) -> void:
 ## 撤销
 func _revoke(context: Dictionary) -> bool:
 	return child.revoke(context) if child else true
-
-
-func _update(delta: float) -> void:
-	if not child: return
-	child.update(delta)
-
-
-## 能否执行
-func _can_execute(context: Dictionary) -> bool:
-	return true if not child else child.can_execute(context)
 
 
 ## 获取子节点

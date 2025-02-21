@@ -27,8 +27,9 @@ func _init_from_data(data : Dictionary) -> void:
 	ability_id = data.get("ID", "")
 
 ## 添加限制器
-func add_restriction(restriction: AbilityRestriction) -> void:
+func add_restriction(restriction: AbilityRestriction) -> AbilityRestriction:
 	restrictions.append(restriction)
+	return restriction
 
 ## 应用技能
 func apply(context: Dictionary) -> void:
@@ -38,11 +39,13 @@ func apply(context: Dictionary) -> void:
 	await AbilitySystem.action_manager.apply_action_tree(action_tree_id, context)
 	AbilitySystem.push_ability_event("ability_applied", context)
 
+
 ## 移除技能
 func remove(context: Dictionary) -> void:
 	# 移除动作树
 	AbilitySystem.action_manager.remove_action_tree(action_tree_id, context)
 	AbilitySystem.push_ability_event("ability_removed", context)
+
 
 ## 能否执行
 func can_cast(context: Dictionary) -> bool:
@@ -52,6 +55,7 @@ func can_cast(context: Dictionary) -> bool:
 			_can_use_reason = restriction.can_use_reason
 			return false
 	return true
+
 
 ## 执行技能
 func cast(context: Dictionary) -> void:

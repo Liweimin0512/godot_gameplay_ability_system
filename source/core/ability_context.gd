@@ -163,12 +163,12 @@ func to_dictionary() -> Dictionary:
 		# 战斗数据
 		"damage": damage,
 		"healing": healing,
-		"damage_type": damage_type,
-		"critical": critical,
 		"force_critical": force_critical,
-		"is_indirect": is_indirect,
 		"force_hit": force_hit,
+		"damage_type": damage_type,
 		"is_hit": is_hit,
+		"is_critical": is_critical,
+		"is_indirect": is_indirect,
 		# 变量和标签
 		"variables": _variables.duplicate(),
 		"tags": _tags.duplicate()

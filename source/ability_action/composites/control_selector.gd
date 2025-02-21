@@ -32,10 +32,3 @@ func _revoke(context: Dictionary) -> bool:
 	var ok = await children[_last_selected_index].revoke(context)
 	_last_selected_index = -1
 	return ok
-
-
-## 子节点能否执行，有一个子节点能执行，则可以执行
-## [param context] 上下文
-## [return] 节点能否执行
-func _can_execute(context: Dictionary) -> bool:
-	return children.any(func(child: AbilityAction) -> bool: return child.can_execute(context))
