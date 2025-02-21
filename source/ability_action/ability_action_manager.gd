@@ -6,28 +6,27 @@ var _action_node_types: Dictionary[String, GDScript] = {}
 ## 效果节点路径映射表
 var _action_path_types: Dictionary[String, String] = {
 	# 控制节点
-	"sequence": "res://addons/godot_gameplay_ability_system/source/core/ability_action/control_actions/control_sequence.gd",
-	"selector": "res://addons/godot_gameplay_ability_system/source/core/ability_action/control_actions/control_selector.gd",
-	"parallel": "res://addons/godot_gameplay_ability_system/source/core/ability_action/control_actions/control_parallel.gd",
-	"random_selector": "res://addons/godot_gameplay_ability_system/source/core/ability_action/control_actions/control_random_selector.gd",
+	"sequence": "res://addons/godot_gameplay_ability_system/source/ability_action/composites/control_sequence.gd",
+	"selector": "res://addons/godot_gameplay_ability_system/source/ability_action/composites/control_selector.gd",
+	"parallel": "res://addons/godot_gameplay_ability_system/source/ability_action/composites/control_parallel.gd",
+	"random_selector": "res://addons/godot_gameplay_ability_system/source/ability_action/composites/control_random_selector.gd",
 	
 	# 装饰器节点
-	"condition_ability_name": "res://addons/godot_gameplay_ability_system/source/core/ability_action/decorator_actions/condition_ability_name.gd",
-	"condition_ability_resource": "res://addons/godot_gameplay_ability_system/source/core/ability_action/decorator_actions/condition_ability_resource.gd",
-	"target_selector": "res://addons/godot_gameplay_ability_system/source/core/ability_action/decorator_actions/decorator_target_selector.gd",
-	"decorator_delay": "res://addons/godot_gameplay_ability_system/source/core/ability_action/decorator_actions/decorator_delay.gd",
-	"decorator_probability": "res://addons/godot_gameplay_ability_system/source/core/ability_action/decorator_actions/decorator_probability.gd",
-	"decorator_trigger": "res://addons/godot_gameplay_ability_system/source/core/ability_action/decorator_actions/decorator_trigger.gd",
-	"decorator_repeat": "res://addons/godot_gameplay_ability_system/source/core/ability_action/decorator_actions/decorator_repeat.gd",
+	"condition_ability_name": "res://addons/godot_gameplay_ability_system/source/ability_action/decorators/condition_ability_name.gd",
+	"condition_ability_resource": "res://addons/godot_gameplay_ability_system/source/ability_action/decorators/condition_ability_resource.gd",
+	"target_selector": "res://addons/godot_gameplay_ability_system/source/ability_action/decorators/decorator_target_selector.gd",
+	"decorator_delay": "res://addons/godot_gameplay_ability_system/source/ability_action/decorators/decorator_delay.gd",
+	"decorator_probability": "res://addons/godot_gameplay_ability_system/source/ability_action/decorators/decorator_probability.gd",
+	"decorator_trigger": "res://addons/godot_gameplay_ability_system/source/ability_action/decorators/decorator_trigger.gd",
+	"decorator_repeat": "res://addons/godot_gameplay_ability_system/source/ability_action/decorators/decorator_repeat.gd",
 
 	# 动作节点
-	"apply_damage": "res://addons/godot_gameplay_ability_system/source/core/ability_action/effect_actions/apply_damage_effect.gd",
-	"apply_ability": "res://addons/godot_gameplay_ability_system/source/core/ability_action/effect_actions/apply_ability_effect.gd",
-	"apply_tag": "res://addons/godot_gameplay_ability_system/source/core/ability_action/effect_actions/apply_tag_effect.gd",
-	"modify_attribute": "res://addons/godot_gameplay_ability_system/source/core/ability_action/effect_actions/modify_attribute_effect.gd",
-	"modify_ability_resource": "res://addons/godot_gameplay_ability_system/source/core/ability_action/effect_actions/modify_ability_resource_effect.gd",
-	"modify_damage": "res://addons/godot_gameplay_ability_system/source/core/ability_action/effect_actions/modify_damage_effect.gd",
-	# "spawn_projectile": "res://addons/godot_gameplay_ability_system/source/core/ability_action/effect_actions/projectile_effect.gd",
+	"apply_damage": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/base_damage_effect.gd",
+	"apply_ability": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/apply_ability_effect.gd",
+	"apply_tag": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/apply_tag_effect.gd",
+	"modify_attribute": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/modify_attribute_effect.gd",
+	"modify_ability_resource": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/modify_ability_resource_effect.gd",
+	"modify_damage": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/modify_damage_effect.gd",
 }
 ## 待加载效果脚本数量
 var _action_loading_count : int = 0

@@ -17,7 +17,7 @@ const BASE_CRIT_MULTIPLIER : float = 1.5
 @export var dodge_rate_attribute : StringName = "dodge_rate"                ## 闪避率属性
 @export var min_hit_rate : float = 0.1                                      ## 最小命中率
 @export var crit_rate_attribute : StringName = "crit_rate"                  ## 暴击率属性
-@export var crit_multiplier : float = 1.5                                   ## 暴击倍数
+@export var crit_multiplier : float = BASE_CRIT_MULTIPLIER                  ## 暴击倍数
 
 var _is_critical : bool = false
 var _is_hit : bool = false
@@ -28,6 +28,8 @@ func _perform_action(context: Dictionary) -> STATUS:
 
 	if not _validate_entities(caster, targets):
 		return STATUS.FAILURE
+
+	_get_context_config(context)
 
 	for target in targets:
 		_is_hit = _roll_hit(caster, target, context)
@@ -62,7 +64,16 @@ func _calculate_damage(attacker: Node, defender: Node, context: Dictionary) -> f
 	# 基础伤害计算
 	var final_damage = max(base_damage - defense, base_damage * 0.1 ) * critical_multiplier
 
-	return final_damage
+	context.merge({
+		"damage": final_damage,
+		"damage_type": damage_type,
+		"caster": context.get("caster"),
+		"target": context.get("target"),
+		"ability": context.get("ability"),
+	})
+	# 发送伤害计算前事件
+	AbilitySystem.push_ability_event("damage_calculating", context.duplicate())
+	return context.get("damage", final_damage)
 
 
 ## 应用伤害

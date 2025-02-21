@@ -15,7 +15,7 @@ const CACHE_DURATION : float = 0.1 # 100ms
 ## 动作树
 @export var action_tree_id: StringName
 ## 数据配置
-@export var config: Dictionary
+@export var config: Dictionary 
 ## 子能力
 @export var sub_abilities : Array[Ability] = []
 # 触发相关
@@ -110,14 +110,7 @@ func execute(context: Dictionary) -> void:
 	_last_execution_time = Time.get_ticks_msec() / 1000.0
 	
 	_before_execute(context)
-
-	# 执行自身行为树
-	if not action_tree_id.is_empty():
-		await AbilitySystem.action_manager.execute_action_tree(action_tree_id, context)
-	# 执行子能力行为树
-	for sub_ability in sub_abilities:
-		sub_ability.execute(context)
-
+	await _execute_internal(context)
 	_after_execute(context)
 	_is_executing = false
 
@@ -152,23 +145,31 @@ func has_tags(tags: Array[StringName]) -> bool:
 
 #endregion
 
+# 私有方法
+## 在执行前调用
 func _before_execute(context: Dictionary) -> void:
 	AbilitySystem.push_ability_event("ability_executing", context)
 	for restriction in restrictions:
 		restriction.before_ability_execute(context)
 
 
+# 新增内部执行方法，便于子类重写具体执行逻辑
+func _execute_internal(context: Dictionary) -> void:
+	# 执行自身行为树
+	if not action_tree_id.is_empty():
+		await AbilitySystem.action_manager.execute_action_tree(action_tree_id, context)
+	# 执行子能力行为树
+	for sub_ability in sub_abilities:
+		sub_ability.execute(context)
+
+## 在执行后调用
 func _after_execute(context: Dictionary) -> void:
 	AbilitySystem.push_ability_event("ability_executed", context)
 	for restriction in restrictions:
 		restriction.after_ability_execute(context)
 
 
-func _on_trigger_success(context: Dictionary) -> void:
-	if is_active: 
-		execute(context)
-
-
+## 检查能否执行
 func _check_can_execute(context: Dictionary) -> bool:
 	# 检查限制器
 	for restriction in restrictions:
@@ -184,13 +185,21 @@ func _check_can_execute(context: Dictionary) -> bool:
 	return true
 
 
+## 设置触发器
 func _setup_trigger() -> void:
 	if trigger:
 		trigger.trigger_success.connect(_on_trigger_success)
 		AbilitySystem.trigger_manager.register_ability_trigger(trigger, self)
 
 
+## 清理触发器
 func _cleanup_trigger() -> void:
 	if trigger:
 		trigger.trigger_success.disconnect(_on_trigger_success)
 		AbilitySystem.trigger_manager.unregister_ability_trigger(trigger, self)
+
+
+## 触发器成功
+func _on_trigger_success(context: Dictionary) -> void:
+	if is_active: 
+		execute(context)

@@ -11,7 +11,7 @@ func _enter_tree() -> void:
 	# 注册自定义类型
 	_register_custom_types()
 	# add_autoload_singleton("EffectNodeFactory", "source/common/factory/ability_effect_node_factory.gd")
-	add_autoload_singleton("AbilitySystem", "source/systems/ability_system.gd")
+	add_autoload_singleton("AbilitySystem", "source/core/ability_system.gd")
 	add_inspector_plugin(inspector_plugin)
 
 func _exit_tree() -> void:
