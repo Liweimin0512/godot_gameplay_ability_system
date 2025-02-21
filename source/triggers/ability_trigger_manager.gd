@@ -9,7 +9,7 @@ signal ability_trigger_failed(ability: Ability)
 
 ## 触发
 func trigger(trigger_type: StringName, context: Dictionary) -> void:
-	var triggers : Array[DecoratorTrigger] = _ability_triggers.get(trigger_type, [])
+	var triggers : Array = _ability_triggers.get(trigger_type, [])
 	if triggers.is_empty():
 		return
 	for trigger : DecoratorTrigger in triggers:

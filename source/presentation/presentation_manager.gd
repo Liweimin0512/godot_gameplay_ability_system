@@ -1,8 +1,7 @@
 extends PresentationManagerInterface
 class_name PresentationManager
 
-## 表现配置
-
+## 技能表现管理器，接受逻辑信号并发射表现请求
 
 var _presentation_table_type : TableType
 
@@ -20,15 +19,16 @@ func initialize(presentation_table_type : TableType) -> void:
 	DataManager.load_data_table(presentation_table_type, _on_presentation_config_loaded)
 	AbilitySystem.ability_event.connect(_on_ability_event)
 
+
 ## 处理游戏事件
 func _on_ability_event(event_type: StringName, context: Dictionary = {}) -> void:
 	var ability : Ability = context.get("ability", null)
 	if not ability:
-		GASLogger.error("Ability event context does not contain ability")
+		GASLogger.debug("Ability event context does not contain ability: {0}".format([event_type]))
 		return
 	var ability_presentation = DataManager.get_table_item(_presentation_table_type.table_name, ability.ability_id)
 	if not ability_presentation or ability_presentation.is_empty():
-		GASLogger.error("Invalid ability name: " + ability.ability_name)
+		GASLogger.error("Invalid ability id: " + ability.ability_id)
 		return
 	
 	var events = ability_presentation["events"]

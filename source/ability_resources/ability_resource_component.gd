@@ -38,9 +38,9 @@ func add_resource(resource: AbilityResource) -> void:
 	resource.initialization(_attribute_component)
 	_ability_resources[resource.ability_resource_id] = resource
 	if not resource.current_value_changed.is_connected(_on_resource_current_value_changed):
-		resource.current_value_changed.connect(_on_resource_current_value_changed)
+		resource.current_value_changed.connect(_on_resource_current_value_changed.bind(resource))
 	if not resource.max_value_changed.is_connected(_on_resource_max_value_changed):
-		resource.max_value_changed.connect(_on_resource_max_value_changed)
+		resource.max_value_changed.connect(_on_resource_max_value_changed.bind(resource))
 
 ## 移除资源
 func remove_resource(resource_id: StringName) -> void:
@@ -114,9 +114,9 @@ func _on_ability_component_game_event_handled(event_name: StringName, event_cont
 	_handle_resource_callback(event_name, event_context)
 
 ## 资源当前值改变
-func _on_resource_current_value_changed(res_id: StringName, value: float) -> void:
-	resource_current_value_changed.emit(res_id, value)
+func _on_resource_current_value_changed(value: float, res: AbilityResource) -> void:
+	resource_current_value_changed.emit(res.ability_resource_id, value)
 
 ## 资源最大值改变
-func _on_resource_max_value_changed(res_id: StringName, value: float, max_value: float) -> void:
-	resource_max_value_changed.emit(res_id, value, max_value)
+func _on_resource_max_value_changed(value: float, max_value: float, res: AbilityResource) -> void:
+	resource_max_value_changed.emit(res.ability_resource_id, value, max_value)

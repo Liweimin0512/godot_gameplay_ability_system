@@ -68,6 +68,10 @@ func _revoke(context: Dictionary) -> bool:
 	_original_context = {}
 	return true
 
+## 触发器默认不能手动释放
+func _can_execute(trigger_data: Dictionary) -> bool:
+	return false
+
 ## 注册触发器
 func _register_trigger(context: Dictionary) -> bool:
 	if _registered: return false

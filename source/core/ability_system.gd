@@ -93,12 +93,10 @@ func push_ability_event(event_name: StringName, context : Dictionary = {}) -> vo
 ## 订阅技能事件
 func subscribe_ability_event(event_name: StringName, callback: Callable) -> void:
 	_event_bus.subscribe(_get_ability_event_name(event_name), callback)
-	ability_event.connect(callback)
 
 ## 取消订阅技能事件
 func unsubscribe_ability_event(event_name: StringName, callback: Callable) -> void:
 	_event_bus.unsubscribe(_get_ability_event_name(event_name), callback)
-	ability_event.disconnect(callback)
 
 func _get_ability_event_name(event_name: StringName) -> StringName:
 	return ability_event_prefix + "_" + event_name

@@ -3,7 +3,6 @@ class_name ApplyDamageEffect
 
 ## 处理伤害
 
-
 ## 伤害倍数修正值
 @export var damage_percentage_multiplier: float = 1.0
 ## 伤害值修正值
@@ -55,3 +54,17 @@ func _perform_action(context: Dictionary) -> STATUS:
 
 func _validate_property(property: Dictionary) -> void:
 	pass
+
+
+func _calculate_damage(context: Dictionary) -> float:
+	var attacker = context.get("caster")
+	var defender = context.get("target")
+	var base_damage = _get_base_damage(attacker)
+	var defense = _get_defense(defender)
+
+	## 伤害计算逻辑
+	return base_damage * (1 - defense)
+
+func _apply_damage(target: Node, damage: float) -> void:
+	pass
+

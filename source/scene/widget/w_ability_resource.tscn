@@ -29,7 +29,9 @@ corner_radius_bottom_right = 1
 corner_radius_bottom_left = 1
 
 [node name="W_AbilityResource" type="MarginContainer"]
-custom_minimum_size = Vector2(100, 24)
+custom_minimum_size = Vector2(100, 15)
+offset_right = 100.0
+offset_bottom = 15.0
 script = ExtResource("1_s3kvh")
 
 [node name="ProgressBar" type="ProgressBar" parent="."]
@@ -45,7 +47,7 @@ layout_mode = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 5
 theme_override_constants/shadow_outline_size = 5
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 10
 text = "9999/9999"
 horizontal_alignment = 1
 vertical_alignment = 1
