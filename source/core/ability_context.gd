@@ -22,10 +22,14 @@ var effect_stack: int = 1  # 效果层数
 var effect_duration: float = 0.0  # 效果持续时间
 
 # 战斗数据
-var damage: float = 0.0  # 伤害值
-var healing: float = 0.0  # 治疗值
-var damage_type: StringName  # 伤害类型
-var critical: bool = false  # 是否暴击
+var damage: float = 0.0  				# 伤害值
+var healing: float = 0.0  				# 治疗值
+var damage_type: StringName  			# 伤害类型
+var force_critical: bool = false  		# 强制暴击
+var force_hit: bool = false  			# 强制命中
+var is_critical: bool = false  			# 是否暴击
+var is_hit: bool = false  				# 是否命中
+var is_indirect: bool = false  			# 是否间接伤害
 
 # 变量存储
 var _variables: Dictionary = {}  # 动态变量存储
@@ -102,10 +106,16 @@ func create_copy() -> AbilityContext:
 	copy.effect_id = effect_id
 	copy.effect_stack = effect_stack
 	copy.effect_duration = effect_duration
+	# 伤害相关
 	copy.damage = damage
 	copy.healing = healing
 	copy.damage_type = damage_type
-	copy.critical = critical
+	copy.force_critical = force_critical
+	copy.force_hit = force_hit
+	copy.is_critical = is_critical
+	copy.is_hit = is_hit
+	copy.is_indirect = is_indirect
+
 	copy._variables = _variables.duplicate(true)
 	copy._tags = _tags.duplicate()
 	return copy
@@ -127,7 +137,11 @@ static func from_dictionary(dict: Dictionary) -> AbilityContext:
 	context.damage = dict.get("damage", 0.0)
 	context.healing = dict.get("healing", 0.0)
 	context.damage_type = dict.get("damage_type", &"")
-	context.critical = dict.get("critical", false)
+	context.force_critical = dict.get("force_critical", false)
+	context.force_hit = dict.get("force_hit", false)
+	context.is_critical = dict.get("is_critical", false)
+	context.is_hit = dict.get("is_hit", false)
+	context.is_indirect = dict.get("is_indirect", false)
 	# 变量和标签
 	context._variables = dict.get("variables", {}).duplicate()
 	context._tags = dict.get("tags", []).duplicate()
@@ -151,6 +165,10 @@ func to_dictionary() -> Dictionary:
 		"healing": healing,
 		"damage_type": damage_type,
 		"critical": critical,
+		"force_critical": force_critical,
+		"is_indirect": is_indirect,
+		"force_hit": force_hit,
+		"is_hit": is_hit,
 		# 变量和标签
 		"variables": _variables.duplicate(),
 		"tags": _tags.duplicate()

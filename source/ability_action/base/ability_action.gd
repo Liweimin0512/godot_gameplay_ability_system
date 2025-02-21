@@ -134,8 +134,16 @@ func _get_context_value(context: Dictionary, key: StringName) -> Variant:
 		return null
 	return context[key]
 
+## 获取技能配置
+func _get_ability_config(context: Dictionary) -> Dictionary:
+	var ability : Ability = context.get("ability", null)
+	if not ability:
+		GASLogger.error("AbilityAction {0}: _get_ability_config: ability is null!".format([action_name]))
+		return {}
+	return ability.config
 
 ## 解析参数
+## TODO 这个是最初的想法，现在显然没什么用
 func _resolve_parameter(param: String, context: AbilityContext) -> Variant:
 	if param.begins_with("@data:"):
 		return context.ability.data.get(param.substr(6))
