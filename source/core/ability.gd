@@ -162,6 +162,7 @@ func _execute_internal(context: Dictionary) -> void:
 	for sub_ability in sub_abilities:
 		sub_ability.execute(context)
 
+
 ## 在执行后调用
 func _after_execute(context: Dictionary) -> void:
 	AbilitySystem.push_ability_event("ability_executed", context)
@@ -203,3 +204,4 @@ func _cleanup_trigger() -> void:
 func _on_trigger_success(context: Dictionary) -> void:
 	if is_active: 
 		execute(context)
+
