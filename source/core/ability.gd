@@ -12,16 +12,23 @@ class_name Ability
 @export var ability_description: String
 ## 技能图标
 @export var icon: Texture2D
+## 限制器
+@export var restrictions: Array[AbilityRestriction]
 ## 动作树
 @export var action_tree_id: StringName
 ## 数据配置
 @export var config: Dictionary
+
+var _can_use_reason : String
 
 ## 从数据字典初始化
 ## [param data] 数据字典
 func _init_from_data(data : Dictionary) -> void:
 	ability_id = data.get("ID", "")
 
+## 添加限制器
+func add_restriction(restriction: AbilityRestriction) -> void:
+	restrictions.append(restriction)
 
 ## 应用技能
 func apply(context: Dictionary) -> void:
@@ -39,14 +46,25 @@ func remove(context: Dictionary) -> void:
 
 ## 能否执行
 func can_cast(context: Dictionary) -> bool:
-	return AbilitySystem.action_manager.can_execute_action_tree(action_tree_id, context)
-
+	for restriction in restrictions:
+		var can_use = restriction.can_use(context)
+		if not can_use:
+			_can_use_reason = restriction.can_use_reason
+			return false
+	return true
 
 ## 执行技能
 func cast(context: Dictionary) -> void:
 	AbilitySystem.push_ability_event("ability_executing", context)
+	for restriction in restrictions:
+		restriction.on_ability_used(context)
+
 	await AbilitySystem.action_manager.execute_action_tree(action_tree_id, context)
 	AbilitySystem.push_ability_event("ability_executed", context)
+
+func reset() -> void:
+	for restriction in restrictions:
+		restriction.reset()
 
 #region 标签相关
 

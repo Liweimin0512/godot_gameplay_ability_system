@@ -98,14 +98,6 @@ func execute_action_tree(action_tree_id: StringName, context: Dictionary) -> voi
 	#AbilitySystem.push_ability_event("action_tree_executed", context)
 
 
-## 能否执行行动树
-func can_execute_action_tree(action_tree_id: StringName, context: Dictionary) -> bool:
-	var action_tree : AbilityAction = get_action_tree(action_tree_id)
-	if not action_tree:
-		return false
-	return action_tree.can_execute(context)
-
-
 ## 获取行动树
 func get_action_tree(action_tree_id: StringName) -> AbilityAction:
 	if _action_trees.has(action_tree_id):

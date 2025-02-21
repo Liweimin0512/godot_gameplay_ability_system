@@ -25,12 +25,6 @@ func remove_action_tree(_action_tree_id: StringName, _context: Dictionary) -> vo
 func execute_action_tree(_action_tree_id: StringName, _context: Dictionary) -> void:
 	pass
 
-
-## 能否执行行动树
-func can_execute_action_tree(_action_tree_id: StringName, _context: Dictionary) -> bool:
-	return true
-
-
 ## 获取行动树
 func get_action_tree(action_tree_id: StringName) -> AbilityAction:
 	return null
