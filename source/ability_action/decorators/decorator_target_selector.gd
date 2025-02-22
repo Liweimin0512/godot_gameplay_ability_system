@@ -1,6 +1,8 @@
 extends DecoratorAction
 class_name DecoratorTargetSelector
 
+## 目标选择器装饰器：选择目标
+
 ## 目标类型，self: 自身，ally: 友军，enemy: 敌军，all: 所有
 @export_enum("self", "ally", "enemy", "all") var target_type : String = "self"
 ## 随机选择或者全部
@@ -18,6 +20,7 @@ var _executed_targets : Array = []
 signal all_targets_executed
 ## 所有目标撤销完毕
 signal all_targets_revoked
+
 
 func _execute(context: Dictionary) -> STATUS:
 	var enemies = context.get("enemies")
@@ -40,18 +43,14 @@ func _execute(context: Dictionary) -> STATUS:
 		await all_targets_executed
 	return STATUS.SUCCESS
 
-func _revoke(context: Dictionary) -> bool:
+
+func _revoke() -> bool:
 	for target in _targets:
-		child.revoked.connect(_on_child_revoked.bind(target))
-		if is_parallel:
-			child.revoke(context)
-		else:
-			await child.revoke(context)
-	if is_parallel:
-		await all_targets_revoked
+		child.revoke()
 	_targets.clear()
 	_executed_targets.clear()
-	return STATUS.SUCCESS
+	return true
+
 
 ## 选择随机
 func _select_random(allies: Array, enemies: Array, caster: Node) -> Array:
@@ -85,12 +84,8 @@ func _select_all(allies: Array, enemies: Array, caster: Node) -> Array:
 			return allies + enemies
 	return []
 
+
 func _on_child_executed(_status: STATUS, target: Node) -> void:
 	_executed_targets.append(target)
 	if _executed_targets.size() >= _targets.size():
 		all_targets_executed.emit()
-
-func _on_child_revoked(_status: STATUS, target: Node) -> void:
-	_executed_targets.erase(target)
-	if _executed_targets.is_empty():
-		all_targets_revoked.emit()

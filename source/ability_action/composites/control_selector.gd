@@ -24,11 +24,11 @@ func _execute(context: Dictionary) -> STATUS:
 ## 撤销
 ## [param context] 上下文
 ## [return] 是否撤销成功
-func _revoke(context: Dictionary) -> bool:
+func _revoke() -> bool:
 	if _last_selected_index == -1:
 		GASLogger.error("ControlSelectorAction revoke failed, because no child selected")
 		return false
-	# 撤销上一次执行的及诶点的执行
-	var ok = await children[_last_selected_index].revoke(context)
+	# 撤销上一次执行的节点的执行
+	var ok = children[_last_selected_index].revoke()
 	_last_selected_index = -1
 	return ok

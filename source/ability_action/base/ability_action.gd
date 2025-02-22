@@ -28,7 +28,6 @@ var _script_name: StringName = "":
 ## 执行过了，有些技能需要条件判断，条件不满足需要撤回到不满足的步骤
 var is_executed: bool = false
 
-#signal created
 signal applied(context: Dictionary)
 signal executing(context: Dictionary)
 signal executed(context: Dictionary)
@@ -36,75 +35,45 @@ signal revoked(context: Dictionary)
 
 func _init():
 	resource_local_to_scene = true
-	#created.emit()
-
-## 应用
-func apply(context: Dictionary) -> void:
-	context.merge({
-		"ability_action": self
-	}, true)
-	_apply(context)
-	applied.emit(context)
 
 
 ## 执行
 func execute(context: Dictionary) -> STATUS:
-	if not enabled: return STATUS.FAILURE
-	context.merge({
-		"ability_action": self
-	}, true)
-	#TODO 动态数据解析
+	if not enabled:
+		return STATUS.FAILURE
+
+	# 从技能配置中设置属性
+	_setup_from_ability_config(context)
+
 	executing.emit(context)
 	if pre_delay > 0.0:
-		GASLogger.debug("ability_action pre_delay: %s" % [pre_delay])
 		await AbilitySystem.get_tree().create_timer(pre_delay).timeout
 	state = await _execute(context)
 	if state == STATUS.SUCCESS:
 		is_executed = true
 		executed.emit(context)
 		if post_delay > 0.0:
-			GASLogger.debug("ability_action post_delay: %s" % [post_delay])
 			await AbilitySystem.get_tree().create_timer(post_delay).timeout
-	else:
-		## 执行失败，撤销
-		revoke(context)
 	return state
 
 
 ## 撤销
-func revoke(context: Dictionary) -> bool:
-	if not enabled: return false
+func revoke() -> bool:
+	if not enabled: 
+		return false
 	# 如果不能撤销（没有执行过），则直接成功
-	if not is_executed: return true
-	var ok = _revoke(context)
-	context.merge({
-		"ability_action": self
-	}, true)
+	if not is_executed: 
+		return true
+	var ok = _revoke()
 	revoked.emit(ok)
 	return ok
 
 
 ## 获取节点
-func get_action(action_name: StringName) -> AbilityAction:
-	return _get_action(action_name)
-
-
-func _apply(_context: Dictionary) -> void:
-	pass
-
-## 子类中实现的执行方法
-func _execute(_context: Dictionary) -> STATUS:
-	return STATUS.SUCCESS
-
-
-## 子类中实现的撤销方法
-func _revoke(_context: Dictionary) -> bool:
-	return true
-
-
-## 获取子节点，子类实现
-func _get_action(_action_name: StringName) -> AbilityAction:
-	return null
+func get_action(p_action_name: StringName) -> AbilityAction:
+	if action_name == p_action_name:
+		return self
+	return _get_action(p_action_name)
 
 
 ## 获取上下文值
@@ -114,6 +83,7 @@ func _get_context_value(context: Dictionary, key: StringName) -> Variant:
 		return null
 	return context[key]
 
+
 ## 获取技能配置
 func _get_ability_config(context: Dictionary) -> Dictionary:
 	var ability : Ability = context.get("ability", null)
@@ -121,6 +91,7 @@ func _get_ability_config(context: Dictionary) -> Dictionary:
 		GASLogger.error("AbilityAction {0}: _get_ability_config: ability is null!".format([action_name]))
 		return {}
 	return ability.config
+
 
 ## 解析参数
 ## TODO 这个是最初的想法，现在显然没什么用
@@ -130,6 +101,29 @@ func _resolve_parameter(param: String, context: AbilityContext) -> Variant:
 	elif param.begins_with("@var:"):
 		return context.get_variable(param.substr(5))
 	return param
+
+
+## 设置技能配置
+func _setup_from_ability_config(context: Dictionary) -> void:
+	var ability_config : Dictionary = _get_ability_config(context)
+	for param in ability_config:
+		var value = ability_config[param]
+		set(param, value)
+
+
+## 子类中实现的执行方法
+func _execute(_context: Dictionary) -> STATUS:
+	return STATUS.SUCCESS
+
+
+## 子类中实现的撤销方法
+func _revoke() -> bool:
+	return true
+
+
+## 获取子节点，子类实现
+func _get_action(_action_name: StringName) -> AbilityAction:
+	return null
 
 
 func _to_string() -> String:

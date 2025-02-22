@@ -57,10 +57,12 @@ func apply_ability(ability: Ability, ability_context: Dictionary) -> void:
 	ability.apply(ability_context)
 	_abilities.append(ability)
 
+
 ## 移除技能
-func remove_ability(ability: Ability, context: Dictionary) -> void:
-	ability.remove(context)
+func remove_ability(ability: Ability) -> void:
+	ability.remove()
 	_abilities.erase(ability)
+
 
 ## 尝试释放技能
 func try_execute_ability(ability: Ability, context: Dictionary) -> void:

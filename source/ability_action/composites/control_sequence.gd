@@ -22,14 +22,13 @@ func _execute(context: Dictionary) -> STATUS:
 
 
 ## 撤销
-## [param context] 上下文
 ## [return] 是否撤销成功
-func _revoke(context: Dictionary) -> bool:
+func _revoke() -> bool:
 	if _last_executed_index == -1:
 		# 未执行过
 		return true
 	for index in _last_executed_index:
-		var ok = await children[index].revoke(context)
+		var ok = await children[index].revoke()
 		if not ok:
 			GASLogger.error("ControlSequenceAction revoke failed, because child {0} revoke failed".format([index]))
 			return false

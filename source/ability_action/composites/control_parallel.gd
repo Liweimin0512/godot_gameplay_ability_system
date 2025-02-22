@@ -32,9 +32,9 @@ func _execute(context: Dictionary) -> STATUS:
 
 
 ## 撤销
-func _revoke(context: Dictionary) -> bool:
+func _revoke() -> bool:
 	for child in _executed_children:
-		child.revoke(context)
+		child.revoke()
 	_executed_children.clear()
 	return true
 

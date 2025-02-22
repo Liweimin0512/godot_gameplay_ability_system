@@ -1,6 +1,8 @@
 extends BaseDamageEffect
 class_name MultiTargetDamageEffect
 
+## 多目标伤害效果
+
 @export var damage_multipliers: Array[float] = []
 
 func _get_context_config(context: Dictionary) -> void:

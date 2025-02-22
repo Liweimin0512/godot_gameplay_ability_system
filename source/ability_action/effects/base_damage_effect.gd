@@ -33,8 +33,11 @@ func _perform_action(context: Dictionary) -> STATUS:
 
 	for target in targets:
 		_is_hit = _roll_hit(caster, target, context)
-		var final_damage = _calculate_damage(caster, target, context)
-		_apply_damage(target, final_damage, context)
+		_calculate_damage(caster, target, context)
+		# 发送伤害计算前事件
+		AbilitySystem.push_ability_event("damage_calculating", context.duplicate())
+		_apply_damage(target, context)
+		AbilitySystem.push_ability_event("damage_completed", context.duplicate())
 	return STATUS.SUCCESS
 
 
@@ -53,9 +56,10 @@ func _get_context_config(context: Dictionary) -> void:
 
 
 ## 伤害计算
-func _calculate_damage(attacker: Node, defender: Node, context: Dictionary) -> float:
+func _calculate_damage(attacker: Node, defender: Node, context: Dictionary) -> void:
 	if _is_hit == false:
-		return 0.0
+		context.damage = 0
+		return 
 
 	var base_damage = _get_base_damage(attacker, context)
 	var defense = _get_defense(defender)
@@ -65,35 +69,24 @@ func _calculate_damage(attacker: Node, defender: Node, context: Dictionary) -> f
 	var final_damage = max(base_damage - defense, base_damage * 0.1 ) * critical_multiplier
 
 	context.merge({
-		"damage": final_damage,
-		"damage_type": damage_type,
-		"caster": context.get("caster"),
-		"target": context.get("target"),
-		"ability": context.get("ability"),
-	})
-	# 发送伤害计算前事件
-	AbilitySystem.push_ability_event("damage_calculating", context.duplicate())
-	return context.get("damage", final_damage)
+			"damage": final_damage,
+			"damage_type": damage_type,
+			"caster": context.get("caster"),
+			"target": context.get("target"),
+			"ability": context.get("ability"),
+		}, true)
+	return 
 
 
 ## 应用伤害
-func _apply_damage(defender: Node, damage: float, context: Dictionary) -> void:
+func _apply_damage(defender: Node, context: Dictionary) -> void:
+	var damage = context.get("damage", 0.0)
 	var ability_resource_component: AbilityResourceComponent = defender.ability_resource_component
 	var health_resource : AbilityResource = ability_resource_component.get_resource("health")
 	if not health_resource: 
 		GASLogger.error("can not found health resource")
 		return
 	health_resource.consume(damage)
-	context.merge({
-		"is_hit": _is_hit,
-		"is_critical": _is_critical,
-		"damage": damage,
-		"damage_type": damage_type,
-		"is_indirect": is_indirect,
-		"force_critical": false,
-		"force_hit": false,
-	}, true)
-	AbilitySystem.push_ability_event("damage_completed", context.duplicate())
 
 
 ## 获取基础伤害

@@ -18,8 +18,10 @@ const CACHE_DURATION : float = 0.1 # 100ms
 @export var config: Dictionary 
 ## 子能力
 @export var sub_abilities : Array[Ability] = []
-# 触发相关
+## 触发器
 @export var trigger : Trigger = null
+## 是否自动
+@export var is_auto : bool = false
 
 # 运行时状态
 var _can_use_reason : String:						## 不能使用的原因
@@ -34,6 +36,7 @@ var _cache_time : float = 0.0						## 缓存时间
 var _execution_count : int = 0						## 执行次数
 var _last_execution_time : float = 0.0				## 最后执行时间
 var _is_executing : bool = false					## 是否正在执行
+
 
 ## 从数据字典初始化
 ## [param data] 数据字典
@@ -57,30 +60,34 @@ func apply(context: Dictionary) -> void:
 	context.ability = self
 
 	# 如果是触发能力，记得注册到触发器管理器中
-	_setup_trigger()		
+	_setup_trigger()
 
 	# 应用动作树
-	await AbilitySystem.action_manager.apply_action_tree(action_tree_id, context)
+	AbilitySystem.action_manager.apply_action_tree(self, context)
 	AbilitySystem.push_ability_event("ability_applied", context)
 
 	# 应用子能力
 	for sub_ability in sub_abilities:
 		sub_ability.apply(context)
-	
+
+	# 如果是自动能力，立即执行
+	if is_auto:
+		await execute(context)
+
 	is_active = true
 
 
 ## 移除技能
-func remove(context: Dictionary) -> void:
+func remove() -> void:
 	# 移除动作树
-	AbilitySystem.action_manager.remove_action_tree(action_tree_id, context)
-	AbilitySystem.push_ability_event("ability_removed", context)
+	AbilitySystem.action_manager.remove_action_tree(self)
+	AbilitySystem.push_ability_event("ability_removed")
 
 	_cleanup_trigger()
 	
 	for sub_ability in sub_abilities:
-		sub_ability.remove(context)
-	
+		sub_ability.remove()
+
 	is_active = false
 
 
@@ -112,6 +119,7 @@ func execute(context: Dictionary) -> void:
 	_before_execute(context)
 	await _execute_internal(context)
 	_after_execute(context)
+
 	_is_executing = false
 
 
@@ -157,7 +165,7 @@ func _before_execute(context: Dictionary) -> void:
 func _execute_internal(context: Dictionary) -> void:
 	# 执行自身行为树
 	if not action_tree_id.is_empty():
-		await AbilitySystem.action_manager.execute_action_tree(action_tree_id, context)
+		await AbilitySystem.action_manager.execute_action_tree(self, context)
 	# 执行子能力行为树
 	for sub_ability in sub_abilities:
 		sub_ability.execute(context)

@@ -34,7 +34,8 @@ func _perform_action(context: Dictionary = {}) -> STATUS:
 		_ability_resource.consume(_amount)
 	return STATUS.SUCCESS
 
-func _revoke_action(_context: Dictionary) -> bool:
+
+func _revoke() -> bool:
 	if is_temporary:
 		if _amount > 0:
 			_ability_resource.consume(_amount)

@@ -17,17 +17,11 @@ func clear_child() -> void:
 	child = null
 
 
-func _apply(context: Dictionary) -> void:
-	if child:
-		child.apply(context)
-
 ## 撤销
-func _revoke(context: Dictionary) -> bool:
-	return child.revoke(context) if child else true
+func _revoke() -> bool:
+	return child.revoke() if child else true
 
 
 ## 获取子节点
-func _get_action(action_name: StringName) -> AbilityAction:
-	if action_name == "":
-		return self
-	return child.get_node(action_name) if child else null
+func _get_action(p_action_name: StringName) -> AbilityAction:
+	return child.get_action(p_action_name) if child else null

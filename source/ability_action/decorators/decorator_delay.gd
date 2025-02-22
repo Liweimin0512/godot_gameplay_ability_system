@@ -2,6 +2,7 @@ extends DecoratorAction
 class_name DecoratorDelay
 
 ## 延时装饰器：延迟执行子节点
+
 @export var delay_time: float = 1.0            # 延迟时间（秒）
 @export var skip_first_delay: bool = false     # 是否跳过首次延迟
 @export var ignore_time_scale: bool = false    # 是否忽略时间缩放

@@ -30,6 +30,7 @@ func setup(
 	for res : AbilityResource in ability_resource_set:
 		add_resource(res)
 
+
 ## 添加资源
 func add_resource(resource: AbilityResource) -> void:
 	if _ability_resources.has(resource.ability_resource_id):
@@ -41,6 +42,7 @@ func add_resource(resource: AbilityResource) -> void:
 		resource.current_value_changed.connect(_on_resource_current_value_changed.bind(resource))
 	if not resource.max_value_changed.is_connected(_on_resource_max_value_changed):
 		resource.max_value_changed.connect(_on_resource_max_value_changed.bind(resource))
+
 
 ## 移除资源
 func remove_resource(resource_id: StringName) -> void:
@@ -54,10 +56,12 @@ func remove_resource(resource_id: StringName) -> void:
 		res.max_value_changed.disconnect(_on_resource_max_value_changed)
 	_ability_resources.erase(resource_id)
 
+
 ## 检查资源是否足够消耗
 func has_enough_resources(res_id: StringName, cost: int) -> bool:
 	if res_id.is_empty(): return true
 	return get_resource_value(res_id) >= cost
+
 
 ## 获取资源数量
 func get_resource_value(res_id: StringName) -> int:
@@ -66,6 +70,7 @@ func get_resource_value(res_id: StringName) -> int:
 		return res.current_value
 	GASLogger.error("can not found resource by id: {0}".format([res_id]))
 	return 0
+
 
 ## 获取资源百分比
 ## [param res_id] 资源ID
@@ -77,9 +82,11 @@ func get_resource_percent(res_id: StringName) -> float:
 	GASLogger.error("can not found resource by id: {0}".format([res_id]))
 	return 0.0
 
+
 ## 获取资源
 func get_resource(res_id: StringName) -> AbilityResource:
 	return _ability_resources.get(res_id, null)
+
 
 ## 消耗资源
 func consume_resources(res_id: StringName, cost: int) -> bool:
@@ -88,9 +95,11 @@ func consume_resources(res_id: StringName, cost: int) -> bool:
 		return res.consume(cost)
 	return false
 
+
 ## 获取所有资源
 func get_resources() -> Array[AbilityResource]:
 	return _ability_resources.values()
+
 
 ## 消耗技能
 func cost_ability(ability: Ability, context: Dictionary) -> bool:
@@ -99,9 +108,11 @@ func cost_ability(ability: Ability, context: Dictionary) -> bool:
 	ability.ability_cost.cost(context)
 	return true
 
+
 ## 是否能消耗技能
 func can_cost_ability(ability: Ability, context: Dictionary) -> bool:
 	return ability.ability_cost.can_cost(context)
+
 
 ## 触发资源回调
 func _handle_resource_callback(callback_name: StringName, context : Dictionary) -> void:
@@ -109,13 +120,16 @@ func _handle_resource_callback(callback_name: StringName, context : Dictionary) 
 		if res.has_method(callback_name):
 			res.call(callback_name, context)
 
+
 ## 处理游戏事件
 func _on_ability_component_game_event_handled(event_name: StringName, event_context: Dictionary) -> void:
 	_handle_resource_callback(event_name, event_context)
 
+
 ## 资源当前值改变
 func _on_resource_current_value_changed(value: float, res: AbilityResource) -> void:
 	resource_current_value_changed.emit(res.ability_resource_id, value)
+
 
 ## 资源最大值改变
 func _on_resource_max_value_changed(value: float, max_value: float, res: AbilityResource) -> void:
