@@ -73,6 +73,14 @@ func remove_action_tree(ability: Ability) -> void:
 	action_tree.revoke()
 
 
+## 获取行动树描述
+func get_tree_description(ability: Ability) -> String:
+	var action_tree : AbilityAction = _get_action_tree(ability)
+	if not action_tree:
+		return ""
+	return action_tree.get_tree_description()
+
+
 ## 获取行动树
 func _create_action_tree(ability: Ability) -> AbilityAction:
 	if _action_trees.has(ability):

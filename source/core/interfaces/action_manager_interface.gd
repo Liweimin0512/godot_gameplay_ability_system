@@ -28,6 +28,11 @@ func execute_action_tree(_ability: Ability, _context: Dictionary) -> void:
 	pass
 
 
+func get_tree_description(ability: Ability) -> String:
+	return ""
+
+
 ## 获取行动树
 func _create_action_tree(_ability: Ability) -> AbilityAction:
 	return null
+

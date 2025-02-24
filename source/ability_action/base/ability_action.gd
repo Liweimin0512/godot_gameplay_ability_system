@@ -88,6 +88,30 @@ func _get_action(_action_name: StringName) -> AbilityAction:
 	return null
 
 
+## 获取动作描述
+func _get_action_description() -> String:
+	return ""
+
+
+## 获取完整的行为树描述（包括所有子节点）
+func get_tree_description() -> String:
+	var descriptions = []
+	
+	# 获取当前节点的描述
+	var current_desc = _get_action_description()
+	if not current_desc.is_empty():
+		descriptions.append(current_desc)
+	
+	# 如果是组合节点，递归获取所有子节点的描述
+	if self is CompositeAction:
+		for child in self.get_children():
+			var child_desc = child.get_tree_description()
+			if not child_desc.is_empty():
+				descriptions.append(child_desc)
+	
+	return "\n".join(descriptions)
+
+
 func _to_string() -> String:
 	if action_name == "":
 		return _script_name
