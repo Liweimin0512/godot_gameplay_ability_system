@@ -29,8 +29,6 @@ func _perform_action(context: Dictionary) -> STATUS:
 	if not _validate_entities(caster, targets):
 		return STATUS.FAILURE
 
-	_get_context_config(context)
-
 	for target in targets:
 		_is_hit = _roll_hit(caster, target, context)
 		_calculate_damage(caster, target, context)
@@ -39,20 +37,6 @@ func _perform_action(context: Dictionary) -> STATUS:
 		_apply_damage(target, context)
 		AbilitySystem.push_ability_event("damage_completed", context.duplicate())
 	return STATUS.SUCCESS
-
-
-## 从技能上下文获取配置并应用数据
-func _get_context_config(context: Dictionary) -> void:
-	var ability_config : Dictionary = _get_ability_config(context)
-	damage_type = ability_config.get("damage_type", damage_type)
-	is_indirect = ability_config.get("is_indirect", is_indirect)
-	base_damage_attribute = ability_config.get("base_damage_attribute", base_damage_attribute)
-	defense_attribute = ability_config.get("defense_attribute", defense_attribute)
-	hit_rate_attribute = ability_config.get("hit_rate_attribute", hit_rate_attribute)
-	dodge_rate_attribute = ability_config.get("dodge_rate_attribute", dodge_rate_attribute)
-	min_hit_rate = ability_config.get("min_hit_rate", min_hit_rate)
-	crit_rate_attribute = ability_config.get("crit_rate_attribute", crit_rate_attribute)
-	crit_multiplier = ability_config.get("crit_multiplier", crit_multiplier)
 
 
 ## 伤害计算

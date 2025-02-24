@@ -41,12 +41,14 @@ func get_abilities(ability_tags: Array[StringName] = []) -> Array[Ability]:
 			abilities.append(ability)
 	return abilities
 
+
 ## 获取相同名称的技能
 func get_same_ability(ability: Ability) -> Ability:
 	for a in _abilities:
 		if a.ability_name == ability.ability_name and a.ability_tags == ability.ability_tags:
 			return a
 	return null
+
 
 ## 应用技能
 func apply_ability(ability: Ability, ability_context: Dictionary) -> void:

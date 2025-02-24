@@ -17,21 +17,11 @@ var _ability_resource : AbilityResource
 var _amount : int
 
 func _perform_action(context: Dictionary = {}) -> STATUS:
-	var target : Node = _get_context_value(context, "target")
-	var ability_resource_component : AbilityResourceComponent = target.ability_resource_component
-	_ability_resource = ability_resource_component.get_resource(ability_resource_id)
-	if not _ability_resource:
-		GASLogger.error("ModifyAbilityResourceNode ability_resource is null")
-		return STATUS.FAILURE
-	_amount = ability_resource_amount
-	if modify_type == "percentage":
-		_amount = ability_resource_component.get_resource_value(ability_resource_id) * _amount
-	else:
-		_amount = round(_amount)
-	if _amount > 0:
-		_ability_resource.restore(_amount)
-	else:
-		_ability_resource.consume(_amount)
+	var targets : Array[Node] = context.get("targets", [])
+	for target in targets:
+		var result = _modify_resource(target)
+		if result == false:
+			return STATUS.FAILURE
 	return STATUS.SUCCESS
 
 
@@ -42,6 +32,25 @@ func _revoke() -> bool:
 		else:
 			_ability_resource.restore(_amount)
 	return true
+
+
+func _modify_resource(target: Node) -> bool:
+	var ability_resource_component : AbilityResourceComponent = target.ability_resource_component
+	_ability_resource = ability_resource_component.get_resource(ability_resource_id)
+	if not _ability_resource:
+		GASLogger.error("ModifyAbilityResourceNode ability_resource is null")
+		return false
+	_amount = ability_resource_amount
+	if modify_type == "percentage":
+		_amount = ability_resource_component.get_resource_value(ability_resource_id) * _amount
+	else:
+		_amount = round(_amount)
+	if _amount > 0:
+		_ability_resource.restore(_amount)
+	else:
+		_ability_resource.consume(_amount)
+	return true
+
 
 func _description_getter() -> String:
 	if modify_type == "value":

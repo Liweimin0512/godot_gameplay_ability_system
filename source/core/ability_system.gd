@@ -47,6 +47,10 @@ var _event_bus : CoreSystem.EventBus:
 	get:
 		return CoreSystem.event_bus
 
+var _ability_components : Dictionary[Node, AbilityComponent] = {}
+var _attribute_components : Dictionary[Node, AbilityAttributeComponent] = {}
+var _resource_components : Dictionary[Node, AbilityResourceComponent] = {}
+
 # endregion
 
 ## 初始化完成信号
@@ -117,6 +121,36 @@ func unsubscribe_ability_event(event_name: StringName, callback: Callable) -> vo
 
 func _get_ability_event_name(event_name: StringName) -> StringName:
 	return ability_event_prefix + "_" + event_name
+
+
+func get_ability_component(unit : Node) -> AbilityComponent:
+	var ability_component : AbilityComponent = _ability_components.get(unit, null)
+	if not ability_component:
+		ability_component = unit.get("ability_component")
+		if not ability_component:
+			ability_component = unit.get_node_or_null("AbilityComponent")
+		_ability_components[unit] = ability_component
+	return ability_component
+
+
+func get_ability_attribute_component(unit : Node) -> AbilityAttributeComponent:
+	var ability_attribute_component : AbilityAttributeComponent = _attribute_components.get(unit, null)
+	if not ability_attribute_component:
+		ability_attribute_component = unit.get("ability_attribute_component")
+		if not ability_attribute_component:
+			ability_attribute_component = unit.get_node_or_null("AbilityAttributeComponent")
+		_attribute_components[unit] = ability_attribute_component
+	return ability_attribute_component
+
+
+func get_ability_resource_component(unit: Node) -> AbilityResourceComponent:
+	var ability_resource_component : AbilityResourceComponent = _resource_components.get(unit, null)
+	if not ability_resource_component:
+		ability_resource_component = unit.get("ability_resource_component")
+		if not ability_resource_component:
+			ability_resource_component = unit.get_node_or_null("AbilityResourceComponent")
+		_resource_components[unit] = ability_resource_component
+	return ability_resource_component
 
 
 # 限制器相关

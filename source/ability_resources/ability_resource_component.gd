@@ -15,6 +15,14 @@ signal resource_current_value_changed(res_id: StringName, value: float)
 ## 资源最大值变化时发出
 signal resource_max_value_changed(res_id: StringName, value: float, max_value: float)
 
+
+func _ready() -> void:
+	if not _ability_component:
+		_ability_component = get_parent().ability_component
+	if not _attribute_component:
+		_attribute_component = get_parent().ability_attribute_component
+
+
 func setup(
 		ability_resource_set : Array[AbilityResource],
 		p_ability_component : AbilityComponent = null,

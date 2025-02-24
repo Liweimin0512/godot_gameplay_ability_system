@@ -42,9 +42,6 @@ func execute(context: Dictionary) -> STATUS:
 	if not enabled:
 		return STATUS.FAILURE
 
-	# 从技能配置中设置属性
-	_setup_from_ability_config(context)
-
 	executing.emit(context)
 	if pre_delay > 0.0:
 		await AbilitySystem.get_tree().create_timer(pre_delay).timeout
@@ -74,41 +71,6 @@ func get_action(p_action_name: StringName) -> AbilityAction:
 	if action_name == p_action_name:
 		return self
 	return _get_action(p_action_name)
-
-
-## 获取上下文值
-func _get_context_value(context: Dictionary, key: StringName) -> Variant:
-	if not context.has(key):
-		GASLogger.error("AbilityAction {0}: _get_context_value: context not has key: {1}".format([_script_name, key]))
-		return null
-	return context[key]
-
-
-## 获取技能配置
-func _get_ability_config(context: Dictionary) -> Dictionary:
-	var ability : Ability = context.get("ability", null)
-	if not ability:
-		GASLogger.error("AbilityAction {0}: _get_ability_config: ability is null!".format([action_name]))
-		return {}
-	return ability.config
-
-
-## 解析参数
-## TODO 这个是最初的想法，现在显然没什么用
-func _resolve_parameter(param: String, context: AbilityContext) -> Variant:
-	if param.begins_with("@data:"):
-		return context.ability.data.get(param.substr(6))
-	elif param.begins_with("@var:"):
-		return context.get_variable(param.substr(5))
-	return param
-
-
-## 设置技能配置
-func _setup_from_ability_config(context: Dictionary) -> void:
-	var ability_config : Dictionary = _get_ability_config(context)
-	for param in ability_config:
-		var value = ability_config[param]
-		set(param, value)
 
 
 ## 子类中实现的执行方法

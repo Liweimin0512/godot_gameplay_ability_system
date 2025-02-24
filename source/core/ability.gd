@@ -12,14 +12,12 @@ const CACHE_DURATION : float = 0.1 # 100ms
 @export var ability_tags: Array[StringName] = []
 ## 限制器
 @export var restrictions: Array[AbilityRestriction]
-## 动作树
-@export var action_tree_id: StringName
-## 数据配置
-@export var config: Dictionary 
-## 子能力
-@export var sub_abilities : Array[Ability] = []
 ## 触发器
 @export var trigger : Trigger = null
+## 动作树
+@export var action_tree_id: StringName
+## 子能力
+@export var sub_abilities : Array[Ability] = []
 ## 是否自动
 @export var is_auto : bool = false
 
@@ -47,12 +45,6 @@ func _init_from_data(data : Dictionary) -> void:
 	for restriction_config in data.get("restrictions", []):
 		var restriction : AbilityRestriction = AbilitySystem.create_restriction(restriction_config)
 		add_restriction(restriction)
-
-
-## 添加限制器
-func add_restriction(restriction: AbilityRestriction) -> AbilityRestriction:
-	restrictions.append(restriction)
-	return restriction
 
 
 ## 应用技能
@@ -97,7 +89,8 @@ func can_execute(context: Dictionary) -> bool:
 	var current_time = Time.get_ticks_msec() / 1000.0
 	if current_time - _cache_time < CACHE_DURATION:
 		return _cached_can_execute
-	
+
+	context.ability = self
 	_cached_can_execute = _check_can_execute(context)
 	_cache_time = current_time
 	return _cached_can_execute
@@ -129,6 +122,29 @@ func reset() -> void:
 	trigger.reset()
 	for restriction in restrictions:
 		restriction.reset()
+
+
+## 添加限制器
+func add_restriction(restriction: AbilityRestriction) -> AbilityRestriction:
+	restrictions.append(restriction)
+	return restriction
+
+
+## 获取可选地目标
+func get_available_targets(context: Dictionary) -> Array:
+	var selector = _get_target_selector()
+	if not selector: return []
+	return selector.get_available_targets(self, context)
+
+
+## 验证选择的目标，确保目标合法
+func validate_targets(targets: Array, context: Dictionary) -> bool:
+	var selector = _get_target_selector()
+	if not selector: return false
+	return selector.validate_targets(self, targets, context)
+
+
+#endregion
 
 #region 标签相关
 
@@ -213,3 +229,8 @@ func _on_trigger_success(context: Dictionary) -> void:
 	if is_active: 
 		execute(context)
 
+
+## 获取目标选择器
+## 子类可以重写这个方法返回特定的选择器
+func _get_target_selector() -> AbilityTargetSelector:
+	return null
