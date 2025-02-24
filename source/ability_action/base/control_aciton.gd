@@ -23,3 +23,14 @@ func _get_action(p_action_name: StringName) -> AbilityAction:
 		if action:
 			return action
 	return null
+
+
+func get_action_description() -> String:
+	var descriptions : Array[String] = []
+
+	for child in children:
+		var current_desc = child.get_action_description()
+		if current_desc != "":
+			descriptions.append(current_desc)
+	
+	return "\n".join(descriptions)
