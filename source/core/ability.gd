@@ -198,7 +198,7 @@ func _after_execute(context: Dictionary) -> void:
 func _check_can_execute(context: Dictionary) -> bool:
 	# 检查限制器
 	for restriction in restrictions:
-		var can_use = restriction.can_use(context)
+		var can_use = restriction.can_execute(context)
 		if not can_use:
 			_can_use_reason = restriction.can_use_reason
 			return false

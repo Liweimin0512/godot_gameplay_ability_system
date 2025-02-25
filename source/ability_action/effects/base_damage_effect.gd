@@ -90,6 +90,7 @@ func _get_damage_multiplier(context: Dictionary) -> float:
 	return multiplier
 
 
+
 ## 获取暴击伤害倍数
 func _get_crit_multiplier(attacker: Node, context: Dictionary) -> float:
 	var multiplier = 1.0
