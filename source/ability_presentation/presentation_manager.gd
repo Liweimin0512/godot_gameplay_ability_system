@@ -26,6 +26,8 @@ func _on_ability_event(event_type: StringName, context: Dictionary = {}) -> void
 	if not ability:
 		GASLogger.debug("Ability event context does not contain ability: {0}".format([event_type]))
 		return
+	if not DataManager.has_table_item(_presentation_table_type.table_name, ability.ability_id):
+		return
 	var ability_presentation = DataManager.get_table_item(_presentation_table_type.table_name, ability.ability_id)
 	if not ability_presentation or ability_presentation.is_empty():
 		GASLogger.error("Invalid ability id: " + ability.ability_id)
