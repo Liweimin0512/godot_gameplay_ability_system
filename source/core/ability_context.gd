@@ -8,7 +8,7 @@ class_name AbilityContext
 var ability: Ability  # 技能实例
 var caster: Node  # 施法者
 var target: Node  # 主要目标
-var additional_targets: Array[Node] = []  # 额外目标
+var additional_targets: Array = []  # 额外目标
 ## 触发者，可能与施法者不同
 ## 例如：当一个角色使用道具触发效果时，角色是触发者但道具时施法者
 ## 在连锁反应中，A角色触发了B角色的被动技能，这时候A是触发者，B是施法者
@@ -91,9 +91,6 @@ func to_dictionary() -> Dictionary:
 		"instigator": instigator,
 		"target_groups": target_groups,
 		"damage_data": damage_data.to_dictionary(),
-		"creation_time": creation_time,
-		"last_update_time": last_update_time,
-		"delta_time": delta_time,
 		"repeat_index": repeat_index,
 		"target_index": target_index,
 		"total_targets": total_targets,
@@ -101,16 +98,14 @@ func to_dictionary() -> Dictionary:
 
 static func from_dictionary(dictionary: Dictionary) -> AbilityContext:
 	var context := AbilityContext.new()
-	context.ability = dictionary["ability"]
-	context.caster = dictionary["caster"]
-	context.target = dictionary["target"]
-	context.additional_targets = dictionary["additional_targets"]
-	context.instigator = dictionary["instigator"]
+	context.caster = dictionary.get("caster", null)
+	context.ability = dictionary.get("ability", null)
+	context.target = dictionary.get("target", null)
+	var a_targets : Array[Node] = []
+	context.additional_targets = dictionary.get("additional_targets", a_targets)
+	context.instigator = dictionary.get("instigator", null)
 	context.target_groups = dictionary.get("target_groups", {})
-	context.damage_data = DamageData.from_dictionary(dictionary["damage_data"])
-	context.creation_time = dictionary["creation_time"]
-	context.last_update_time = dictionary["last_update_time"]
-	context.delta_time = dictionary["delta_time"]
+	context.damage_data = DamageData.from_dictionary(dictionary.get("damage_data", {}))
 	context.repeat_index = dictionary.get("repeat_index", 0)
 	context.target_index = dictionary.get("target_index", 0)
 	context.total_targets = dictionary.get("total_targets", 0)
@@ -164,12 +159,12 @@ class DamageData:
 
 	static func from_dictionary(dictionary: Dictionary) -> DamageData:
 		var data := DamageData.new()
-		data.damage = dictionary["damage"]
-		data.healing = dictionary["healing"]
-		data.damage_type = dictionary["damage_type"]
-		data.force_critical = dictionary["force_critical"]
-		data.force_hit = dictionary["force_hit"]
-		data.is_critical = dictionary["is_critical"]
-		data.is_hit = dictionary["is_hit"]
-		data.is_indirect = dictionary["is_indirect"]
+		data.damage = dictionary.get("damage", 0.0)
+		data.healing = dictionary.get("healing", 0.0)
+		data.damage_type = dictionary.get("damage_type", &"")
+		data.force_critical = dictionary.get("force_critical", false)
+		data.force_hit = dictionary.get("force_hit", false)
+		data.is_critical = dictionary.get("is_critical", false)
+		data.is_hit = dictionary.get("is_hit", false)
+		data.is_indirect = dictionary.get("is_indirect", false)
 		return data

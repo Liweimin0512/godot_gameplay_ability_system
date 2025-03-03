@@ -69,6 +69,12 @@ func remove_attribute_modifier(modifier: AbilityAttributeModifier):
 func get_attribute_modifiers(attribute_id: StringName) -> Array[AbilityAttributeModifier]:
 	return get_attribute(attribute_id).get_modifiers()
 
+static func get_attribute_component(owner : Node) -> AbilityAttributeComponent:
+	var component = owner.get("ability_attribute_component")
+	if not component:
+		component = owner.get_node_or_null("AbilityAttributeComponent")
+	return component
+
 ## 属性值改变时
 func _on_attribute_value_changed(attribute_id: StringName, value: float) -> void:
 	attribute_changed.emit(attribute_id, value)

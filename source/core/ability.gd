@@ -112,6 +112,11 @@ func execute(context: AbilityContext) -> void:
 	_execution_count += 1
 	_last_execution_time = Time.get_ticks_msec() / 1000.0
 	
+	# 获取实际执行时的目标
+	var targets = _get_actual_targets(context)
+	targets.erase(context.target)
+	context.additional_targets = targets
+	
 	_before_execute(context)
 	await _execute_internal(context)
 	_after_execute(context)
@@ -134,14 +139,14 @@ func add_restriction(restriction: AbilityRestriction) -> AbilityRestriction:
 
 
 ## 获取可选地目标
-func get_available_targets(context: Dictionary) -> Array:
+func get_available_targets(context: AbilityContext) -> Array:
 	var selector = _get_target_selector()
 	if not selector: return []
 	return selector.get_available_targets(self, context)
 
 
 ## 验证选择的目标，确保目标合法
-func validate_targets(targets: Array, context: Dictionary) -> bool:
+func validate_targets(targets: Array, context: AbilityContext) -> bool:
 	var selector = _get_target_selector()
 	if not selector: return false
 	return selector.validate_targets(self, targets, context)
@@ -231,6 +236,13 @@ func _cleanup_trigger() -> void:
 func _on_trigger_success(context: Dictionary) -> void:
 	if is_active: 
 		execute(AbilityContext.from_dictionary(context))
+
+
+## 获取实际执行时的目标
+func _get_actual_targets(context: AbilityContext) -> Array:
+	var selector = _get_target_selector()
+	if not selector: return []
+	return selector.get_actual_targets(self, context)
 
 
 ## 获取目标选择器

@@ -21,9 +21,9 @@ signal ability_trigger_success(ability: Ability, context: Dictionary)
 ## 技能触发失败
 signal ability_trigger_failed(ability: Ability, context: Dictionary)
 
-func setup(ability_set: Array[Ability], ability_context: AbilityContext) -> void:
+func setup(ability_set: Array[Ability]) -> void:
 	for ability in ability_set:
-		apply_ability(ability, ability_context)
+		apply_ability(ability, AbilityContext.from_dictionary({"caster": self}))
 		print("ability_component: {0} 初始化".format([owner.to_string()]))
 
 #region 技能相关
@@ -49,10 +49,6 @@ func get_same_ability(ability: Ability) -> Ability:
 
 ## 应用技能
 func apply_ability(ability: Ability, ability_context: AbilityContext) -> void:
-	ability_context.merge({
-		"tree": owner.get_tree(),
-		"ability_component": self,
-		})
 	ability.caster = get_parent()
 	ability.apply(ability_context)
 	_abilities.append(ability)

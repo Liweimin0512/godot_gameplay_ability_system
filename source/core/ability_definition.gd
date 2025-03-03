@@ -21,7 +21,7 @@ const DEFAULT_ACTION_NODE_PATHS: Dictionary[String, String] = {
 	"apply_damage": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/base_damage_effect.gd",
 	"apply_ability": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/apply_ability_effect.gd",
 	"apply_tag": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/apply_tag_effect.gd",
-	"modify_attribute": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/modify_attribute_effect.gd",
+	#"modify_attribute": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/modify_attribute_effect.gd",
 	"modify_ability_resource": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/modify_ability_resource_effect.gd",
 	"modify_damage": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/modify_damage_effect.gd",
 }

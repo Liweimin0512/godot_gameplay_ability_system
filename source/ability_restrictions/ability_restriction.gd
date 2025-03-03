@@ -4,9 +4,6 @@ class_name AbilityRestriction
 
 var can_use_reason : String = ""
 
-func _init(_config : Dictionary = {}) -> void:
-	pass
-
 func can_execute(context: AbilityContext) -> bool:
 	return true
 
