@@ -28,6 +28,8 @@ var is_empty : bool:
 var is_full : bool:
 	get:
 		return current_value == max_value
+
+var owner : Node
 ## 对应属性
 var _attribute : AbilityAttribute
 
@@ -37,11 +39,12 @@ signal current_value_changed(value : int)
 signal max_value_changed(value: int, max_value: int)
 
 ## 初始化
-func initialization(attribute_component: AbilityAttributeComponent) -> void:
-	_initialization(attribute_component)
+func initialization() -> void:
+	_initialization()
 	if attribute_id.is_empty():
 		return
-
+	
+	var attribute_component = AbilityAttributeComponent.get_attribute_component(owner)
 	_attribute = attribute_component.get_attribute(attribute_id)
 	if not _attribute:
 		GASLogger.error("_attribute is null, cant set resource max value!")
@@ -69,7 +72,7 @@ func restore(amount: int) -> void:
 	]))
 
 ## 初始化，子类实现
-func _initialization(attribute_component: AbilityAttributeComponent) -> void:
+func _initialization() -> void:
 	pass
 
 ## 属性值改变时

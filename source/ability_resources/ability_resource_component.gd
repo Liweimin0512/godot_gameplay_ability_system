@@ -4,39 +4,21 @@ class_name AbilityResourceComponent
 ## 技能资源组件
 
 ## 当前单位所有的技能消耗资源，同名资源是单例
+@export var _resource_scripts : Dictionary[StringName, Script]
 @export var _ability_resources : Dictionary[StringName, AbilityResource]
-## 技能组件
-@export var _ability_component : AbilityComponent
-## 属性组件
-@export var _attribute_component : AbilityAttributeComponent
 
 ## 资源当前值变化时发出
 signal resource_current_value_changed(res_id: StringName, value: float)
 ## 资源最大值变化时发出
 signal resource_max_value_changed(res_id: StringName, value: float, max_value: float)
 
-
-func _ready() -> void:
-	if not _ability_component:
-		_ability_component = get_parent().ability_component
-	if not _attribute_component:
-		_attribute_component = get_parent().ability_attribute_component
-
-
-func setup(
-		ability_resource_set : Array[AbilityResource],
-		p_ability_component : AbilityComponent = null,
-		p_ability_attribute_component : AbilityAttributeComponent = null,
-		) -> void:
-	if p_ability_component != null:
-		_ability_component = p_ability_component
-	if p_ability_attribute_component != null:
-		_attribute_component = p_ability_attribute_component
-	if not _ability_component:
-		GASLogger.error("can not found ability component")
-		return
-	for res : AbilityResource in ability_resource_set:
-		add_resource(res)
+func setup(ability_resource_set : PackedStringArray) -> void:
+	for res_type : String in ability_resource_set:
+		var res_script := _resource_scripts.get(res_type)
+		if not res_script:
+			GASLogger.error("can not found res script: %s" %res_type)
+			continue
+		add_resource(res_script.new())
 
 
 ## 添加资源
@@ -44,7 +26,8 @@ func add_resource(resource: AbilityResource) -> void:
 	if _ability_resources.has(resource.ability_resource_id):
 		GASLogger.error("resource already exists: {0}".format([resource.ability_resource_id]))
 		return
-	resource.initialization(_attribute_component)
+	resource.owner = get_parent()
+	resource.initialization()
 	_ability_resources[resource.ability_resource_id] = resource
 	if not resource.current_value_changed.is_connected(_on_resource_current_value_changed):
 		resource.current_value_changed.connect(_on_resource_current_value_changed.bind(resource))
