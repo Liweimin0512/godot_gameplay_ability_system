@@ -6,11 +6,11 @@ class_name ResourceCostRestriction
 @export var cost_resource_id: StringName
 @export var cost_value: int
 
-func _init(config : Dictionary = {}) -> void:
-	cost_resource_id = config.get("cost_resource_id", "")
-	cost_value = config.get("cost_value", 0)
+func _init(p_cost_resource_id: StringName = "", p_cost_value: int = 0) -> void:
+	cost_resource_id = p_cost_resource_id
+	cost_value = p_cost_value
 
-func _can_cost(context: Dictionary) -> bool:
+func _can_cost(context: AbilityContext) -> bool:
 	var ability = context.get("ability")
 	if not ability:
 		GASLogger.error("技能{0}判断消耗资源{1}时，技能不存在".format([self, resource_name]))
@@ -21,7 +21,7 @@ func _can_cost(context: Dictionary) -> bool:
 		return false
 	return resource_component.has_enough_resources(cost_resource_id, cost_value)
 
-func _cost(context: Dictionary) -> void:
+func _cost(context: AbilityContext) -> void:
 	var resource_component := context.get("resource_component")
 	var ability : Ability = context.get("ability")
 	if not resource_component: 

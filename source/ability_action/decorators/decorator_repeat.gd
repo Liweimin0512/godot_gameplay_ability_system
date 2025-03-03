@@ -8,10 +8,9 @@ class_name DecoratorRepeat
 ## 重复间隔
 @export var repeat_interval: float = 0.0
 
-
-func _execute(context: Dictionary) -> STATUS:
+func _execute(context: AbilityContext) -> STATUS:
 	for i in repeat_count:
-		context["repeat_index"] = i + 1
+		context.repeat_index = i + 1
 		# 执行子节点
 		var status = await child.execute(context)
 		if status == STATUS.FAILURE:

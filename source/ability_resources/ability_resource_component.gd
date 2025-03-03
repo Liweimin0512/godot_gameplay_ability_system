@@ -109,31 +109,6 @@ func get_resources() -> Array[AbilityResource]:
 	return _ability_resources.values()
 
 
-## 消耗技能
-func cost_ability(ability: Ability, context: Dictionary) -> bool:
-	if not ability.ability_cost.can_cost(context):
-		return false
-	ability.ability_cost.cost(context)
-	return true
-
-
-## 是否能消耗技能
-func can_cost_ability(ability: Ability, context: Dictionary) -> bool:
-	return ability.ability_cost.can_cost(context)
-
-
-## 触发资源回调
-func _handle_resource_callback(callback_name: StringName, context : Dictionary) -> void:
-	for res : AbilityResource in get_resources():
-		if res.has_method(callback_name):
-			res.call(callback_name, context)
-
-
-## 处理游戏事件
-func _on_ability_component_game_event_handled(event_name: StringName, event_context: Dictionary) -> void:
-	_handle_resource_callback(event_name, event_context)
-
-
 ## 资源当前值改变
 func _on_resource_current_value_changed(value: float, res: AbilityResource) -> void:
 	resource_current_value_changed.emit(res.ability_resource_id, value)

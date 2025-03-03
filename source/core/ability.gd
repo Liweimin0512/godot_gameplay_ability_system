@@ -35,6 +35,7 @@ var _execution_count : int = 0						## 执行次数
 var _last_execution_time : float = 0.0				## 最后执行时间
 var _is_executing : bool = false					## 是否正在执行
 
+var caster : Node
 
 ## 从数据字典初始化
 ## [param data] 数据字典
@@ -45,17 +46,20 @@ func _init_from_data(data : Dictionary) -> void:
 	for restriction_config in data.get("restrictions", []):
 		var restriction : AbilityRestriction = AbilitySystem.create_restriction(restriction_config)
 		add_restriction(restriction)
+	for ability_id in data.get("sub_abilities", []):
+		var sub_ability : Ability = AbilitySystem.create_ability_instance(ability_id)
+		sub_abilities.append(sub_ability)
 
 
 ## 应用技能
-func apply(context: Dictionary) -> void:
+func apply(context: AbilityContext) -> void:
 	context.ability = self
 
 	# 如果是触发能力，记得注册到触发器管理器中
 	_setup_trigger()
 
 	# 应用动作树
-	AbilitySystem.action_manager.apply_action_tree(self, context)
+	AbilitySystem.action_manager.apply_action_tree(self)
 	AbilitySystem.push_ability_event("ability_applied", context)
 
 	# 应用子能力
@@ -67,7 +71,6 @@ func apply(context: Dictionary) -> void:
 		await execute(context)
 
 	is_active = true
-
 
 ## 移除技能
 func remove() -> void:
@@ -84,7 +87,7 @@ func remove() -> void:
 
 
 ## 能否执行
-func can_execute(context: Dictionary) -> bool:
+func can_execute(context: AbilityContext) -> bool:
 	# 缓存检查
 	var current_time = Time.get_ticks_msec() / 1000.0
 	if current_time - _cache_time < CACHE_DURATION:
@@ -97,7 +100,7 @@ func can_execute(context: Dictionary) -> bool:
 
 
 ## 执行技能
-func execute(context: Dictionary) -> void:
+func execute(context: AbilityContext) -> void:
 	if _is_executing: 
 		GASLogger.error("Ability %s is already executing" % ability_id)
 		return
@@ -171,14 +174,14 @@ func has_tags(tags: Array[StringName]) -> bool:
 
 # 私有方法
 ## 在执行前调用
-func _before_execute(context: Dictionary) -> void:
+func _before_execute(context: AbilityContext) -> void:
 	AbilitySystem.push_ability_event("ability_executing", context)
 	for restriction in restrictions:
 		restriction.before_ability_execute(context)
 
 
 # 新增内部执行方法，便于子类重写具体执行逻辑
-func _execute_internal(context: Dictionary) -> void:
+func _execute_internal(context: AbilityContext) -> void:
 	# 执行自身行为树
 	if not action_tree_id.is_empty():
 		await AbilitySystem.action_manager.execute_action_tree(self, context)
@@ -188,14 +191,14 @@ func _execute_internal(context: Dictionary) -> void:
 
 
 ## 在执行后调用
-func _after_execute(context: Dictionary) -> void:
+func _after_execute(context: AbilityContext) -> void:
 	AbilitySystem.push_ability_event("ability_executed", context)
 	for restriction in restrictions:
 		restriction.after_ability_execute(context)
 
 
 ## 检查能否执行
-func _check_can_execute(context: Dictionary) -> bool:
+func _check_can_execute(context: AbilityContext) -> bool:
 	# 检查限制器
 	for restriction in restrictions:
 		var can_use = restriction.can_execute(context)
@@ -205,7 +208,7 @@ func _check_can_execute(context: Dictionary) -> bool:
 
 	# 如果是触发类型能力，检查触发次数
 	if trigger:
-		return trigger.should_trigger(context)
+		return trigger.should_trigger(context.to_dictionary())
 	
 	return true
 
@@ -227,7 +230,7 @@ func _cleanup_trigger() -> void:
 ## 触发器成功
 func _on_trigger_success(context: Dictionary) -> void:
 	if is_active: 
-		execute(context)
+		execute(AbilityContext.from_dictionary(context))
 
 
 ## 获取目标选择器

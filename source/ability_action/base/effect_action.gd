@@ -3,7 +3,7 @@ class_name EffectAction
 
 ## 效果节点：执行具体的游戏效果
 
-func _execute(context: Dictionary) -> STATUS:
+func _execute(context: AbilityContext) -> STATUS:
 	if not _validate_parameters():
 		GASLogger.error("ability_action execute failed, because parameters are not valid")
 		return STATUS.FAILURE
@@ -17,5 +17,5 @@ func _validate_parameters() -> bool:
 
 
 ## 子类实现，执行具体的游戏效果
-func _perform_action(_context: Dictionary) -> STATUS:
+func _perform_action(_context: AbilityContext) -> STATUS:
 	return STATUS.SUCCESS

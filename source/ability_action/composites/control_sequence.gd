@@ -10,7 +10,7 @@ var _last_executed_index: int = -1
 ## 执行
 ## [param context] 上下文
 ## [return] 节点状态
-func _execute(context: Dictionary) -> STATUS:
+func _execute(context: AbilityContext) -> STATUS:
 	var index: int = 0
 	for child in children:
 		var status = await child.execute(context)

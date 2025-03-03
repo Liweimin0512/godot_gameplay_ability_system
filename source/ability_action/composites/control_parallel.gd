@@ -20,7 +20,7 @@ signal children_executed
 
 
 ## 执行
-func _execute(context: Dictionary) -> STATUS:
+func _execute(context: AbilityContext) -> STATUS:
 	_executed_children.clear()
 	for child in children:
 		if not child.executed.is_connected(_on_child_executed):

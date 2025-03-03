@@ -21,10 +21,7 @@ signal ability_trigger_success(ability: Ability, context: Dictionary)
 ## 技能触发失败
 signal ability_trigger_failed(ability: Ability, context: Dictionary)
 
-func setup(
-			ability_set: Array[Ability],
-			ability_context: Dictionary = {}
-		) -> void:
+func setup(ability_set: Array[Ability], ability_context: AbilityContext) -> void:
 	for ability in ability_set:
 		apply_ability(ability, ability_context)
 		print("ability_component: {0} 初始化".format([owner.to_string()]))
@@ -51,11 +48,12 @@ func get_same_ability(ability: Ability) -> Ability:
 
 
 ## 应用技能
-func apply_ability(ability: Ability, ability_context: Dictionary) -> void:
+func apply_ability(ability: Ability, ability_context: AbilityContext) -> void:
 	ability_context.merge({
 		"tree": owner.get_tree(),
 		"ability_component": self,
 		})
+	ability.caster = get_parent()
 	ability.apply(ability_context)
 	_abilities.append(ability)
 
@@ -67,7 +65,7 @@ func remove_ability(ability: Ability) -> void:
 
 
 ## 尝试释放技能
-func try_execute_ability(ability: Ability, context: Dictionary) -> void:
+func try_execute_ability(ability: Ability, context: AbilityContext) -> void:
 	await ability.execute(context)
 
 #endregion

@@ -7,12 +7,12 @@ class_name ConditionAbility
 
 
 ## 执行
-func _execute(context: Dictionary) -> STATUS:
+func _execute(context: AbilityContext) -> STATUS:
 	if ability_ids.is_empty():
 		# 未设置技能ID，直接成功
 		return await child.execute(context) if child else STATUS.SUCCESS
 
-	var ability : Ability = context.get("ability", null)
+	var ability : Ability = context.ability
 	if not ability:
 		GASLogger.error("ConditionAbility context does not contain ability")
 		return STATUS.FAILURE

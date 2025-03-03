@@ -22,19 +22,25 @@ signal all_targets_executed
 signal all_targets_revoked
 
 
-func _execute(context: Dictionary) -> STATUS:
-	var enemies = context.get("enemies")
-	var allies = context.get("allies")
-	var caster = context.get("caster")
+func _execute(context: AbilityContext) -> STATUS:
+	var enemies = context.get_target_group(&"enemies")
+	var allies = context.get_target_group(&"allies")
+	var caster = context.caster
 	if select_type == "random":
 		_targets = _select_random(allies, enemies, caster)
 	else:
 		_targets = _select_all(allies, enemies, caster)
 
-	for target in _targets:
+	# 设置总目标数
+	context.total_targets = _targets.size()
+	
+	for index in _targets.size():
+		var target = _targets[index]
 		child.executed.connect(_on_child_executed.bind(target))
-		var target_context = context.duplicate(true)
-		target_context["target"] = target
+		var target_context = context.create_copy()
+		target_context.target = target
+		target_context.additional_targets = []
+		target_context.target_index = index
 		if is_parallel:
 			child.execute(target_context)
 		else:
@@ -43,14 +49,12 @@ func _execute(context: Dictionary) -> STATUS:
 		await all_targets_executed
 	return STATUS.SUCCESS
 
-
 func _revoke() -> bool:
 	for target in _targets:
 		child.revoke()
 	_targets.clear()
 	_executed_targets.clear()
 	return true
-
 
 ## 选择随机
 func _select_random(allies: Array, enemies: Array, caster: Node) -> Array:

@@ -13,7 +13,7 @@ class_name ProjectileEffect
 ## 目标位置挂点
 @export var to_node_type : StringName = ""
 
-func _perform_action(context: Dictionary) -> STATUS:
+func _perform_action(context: AbilityContext) -> STATUS:
 	var from_pos = context.get("from")
 	var to_pos = context.get("to")
 	
@@ -21,20 +21,7 @@ func _perform_action(context: Dictionary) -> STATUS:
 		return STATUS.FAILURE
 	
 	# 发送投射物开始事件
-	var ability_system = AbilitySystem.get_singleton()
-	ability_system.emit_game_event(
-		AbilitySystem.GameEventType.PROJECTILE_START,
-		{
-			"ability_name": context.get("ability_name"),
-			"from": from_pos,
-			"to": to_pos,
-			"speed": speed,
-			"source": context.get("source"),
-			"target": context.get("target"),
-			"chain_index": context.get("index", 0)
-		}
-	)
-	
+	AbilitySystem.push_ability_event("projectile_start", context)
 	if wait_for_hit:
 		# 等待投射物命中
 		var distance = from_pos.distance_to(to_pos)
@@ -42,17 +29,7 @@ func _perform_action(context: Dictionary) -> STATUS:
 		await AbilitySystem.get_tree().create_timer(duration).timeout
 		
 	# 发送投射物命中事件
-	ability_system.emit_game_event(
-		AbilitySystem.GameEventType.PROJECTILE_HIT,
-		{
-			"ability_name": context.get("ability_name"),
-			"hit_position": to_pos,
-			"source": context.get("source"),
-			"target": context.get("target"),
-			"chain_index": context.get("index", 0)
-		}
-	)
-	
+	AbilitySystem.push_ability_event("projectile_hit", context)	
 	return STATUS.SUCCESS
 
 class ProjectileConfig:

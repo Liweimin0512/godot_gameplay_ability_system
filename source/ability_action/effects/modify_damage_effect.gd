@@ -9,17 +9,13 @@ var modify_type : String = "value"
 ## 修改值
 @export var modify_value : float = 0.1
 
-func _perform_action(context: Dictionary = {}) -> STATUS:
-	if context.has("damage") == false:
-		return STATUS.FAILURE
-
+func _perform_action(context: AbilityContext) -> STATUS:
 	if modify_type == "value":
-		context.damage = clamp(context.damage + modify_value, 0.0, INF)
+		context.damage_data.damage = clamp(context.damage_data.damage + modify_value, 0.0, INF)
 	else:
-		context.damage = clamp(context.damage * (1 + modify_value), 0.0, INF)
+		context.damage_data.damage = clamp(context.damage_data.damage * (1 + modify_value), 0.0, INF)
 
 	return STATUS.SUCCESS
-
 
 func _description_getter() -> String:
 	var modify_name : String = "%" if modify_type == "percentage" else "点"

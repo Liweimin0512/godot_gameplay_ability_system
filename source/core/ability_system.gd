@@ -107,7 +107,7 @@ func unregister_trigger(trigger_type: StringName, trigger: Trigger) -> void:
 	trigger_manager.unregister_trigger(trigger_type, trigger)
 
 ## 发送技能事件
-func push_ability_event(event_name: StringName, context : Dictionary = {}) -> void:
+func push_ability_event(event_name: StringName, context : AbilityContext = null) -> void:
 	_event_bus.push_event(_get_ability_event_name(event_name), context)
 	ability_event.emit(event_name, context)
 
@@ -121,7 +121,6 @@ func unsubscribe_ability_event(event_name: StringName, callback: Callable) -> vo
 
 func _get_ability_event_name(event_name: StringName) -> StringName:
 	return ability_event_prefix + "_" + event_name
-
 
 func get_ability_component(unit : Node) -> AbilityComponent:
 	var ability_component : AbilityComponent = _ability_components.get(unit, null)

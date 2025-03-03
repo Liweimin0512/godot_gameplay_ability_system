@@ -11,15 +11,15 @@ class_name ConditionAbilityResource
 @export var need_resource_value: float
 
 ## 执行
-func _execute(context: Dictionary) -> STATUS:
+func _execute(context: AbilityContext) -> STATUS:
 	if not _check_resource_condition(context):
 		return STATUS.FAILURE
 	return await child.execute(context) if child else STATUS.SUCCESS
 
 
 ## 资源条件判断
-func _check_resource_condition(context: Dictionary) -> bool:
-	var source = context.get(resource_target, null)
+func _check_resource_condition(context: AbilityContext) -> bool:
+	var source = context.get(resource_target)
 	if not source:
 		GASLogger.error("{0} is null".format([resource_target]))
 		return false

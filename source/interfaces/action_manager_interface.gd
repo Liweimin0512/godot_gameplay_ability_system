@@ -14,7 +14,7 @@ func initialize(
 
 
 ## 应用行动树
-func apply_action_tree(_ability: Ability, _context: Dictionary) -> void:
+func apply_action_tree(_ability: Ability) -> void:
 	pass
 
 
@@ -24,7 +24,7 @@ func remove_action_tree(_ability: Ability) -> void:
 
 
 ## 执行行动树
-func execute_action_tree(_ability: Ability, _context: Dictionary) -> void:
+func execute_action_tree(_ability: Ability, _context: AbilityContext) -> void:
 	pass
 
 

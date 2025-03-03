@@ -10,7 +10,7 @@ class_name DecoratorDelay
 var _is_first_execution: bool = true
 
 ## 执行装饰器
-func _execute(context: Dictionary) -> STATUS:
+func _execute(context: AbilityContext) -> STATUS:
 	# 检查子节点
 	if not child : return STATUS.FAILURE
 		
@@ -20,7 +20,7 @@ func _execute(context: Dictionary) -> STATUS:
 		return await child.execute(context)
 		
 	# 开始延时
-	var tree := context.get("tree") as SceneTree
+	var tree := context.caster.get_tree()
 	if not tree:
 		push_error("DelayDecorator: No SceneTree found in context")
 		return STATUS.FAILURE

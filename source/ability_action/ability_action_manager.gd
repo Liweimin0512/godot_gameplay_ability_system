@@ -15,7 +15,6 @@ var _action_table_type : TableType
 ## 效果树缓存
 var _action_trees: Dictionary[Ability, AbilityAction] = {}
 
-
 ## 初始化
 func initialize(resource_manager : CoreSystem.ResourceManager , data_manager : DataManager, 
 		action_paths: Dictionary, action_table_type : TableType) -> void:
@@ -47,7 +46,7 @@ func initialize(resource_manager : CoreSystem.ResourceManager , data_manager : D
 
 
 ## 应用行动树
-func apply_action_tree(ability: Ability, context: Dictionary) -> void:
+func apply_action_tree(ability: Ability) -> void:
 	var action_tree : AbilityAction = _action_trees.get(ability, null)
 	if action_tree == null:
 		action_tree = _create_action_tree(ability)
@@ -58,7 +57,7 @@ func apply_action_tree(ability: Ability, context: Dictionary) -> void:
 
 
 ## 执行行动树
-func execute_action_tree(ability: Ability, context: Dictionary) -> void:
+func execute_action_tree(ability: Ability, context: AbilityContext) -> void:
 	var action_tree : AbilityAction = _get_action_tree(ability)
 	if not action_tree:
 		return
@@ -169,25 +168,5 @@ func _create_action_from_config(config: Dictionary) -> AbilityAction:
 		else:
 			GASLogger.error("set child failed! %s" %[node_type])
 
-	#_connect_action_node_signals(node)
 	node.set_meta("config", config)
 	return node
-
-
-func _connect_action_node_signals(node: AbilityAction) -> void:
-	node.applied.connect(func(context: Dictionary):
-		if node.action_name.is_empty(): return
-		AbilitySystem.push_ability_event("action_applied", context)
-	)
-	node.executing.connect(func(context: Dictionary):
-		if node.action_name.is_empty(): return
-		AbilitySystem.push_ability_event("action_executing", context)
-	)
-	node.executed.connect(func(context: Dictionary):
-		if node.action_name.is_empty(): return
-		AbilitySystem.push_ability_event("action_executed", context)
-	)
-	node.revoked.connect(func(context: Dictionary):
-		if node.action_name.is_empty(): return
-		AbilitySystem.push_ability_event("action_revoked", context)
-	)

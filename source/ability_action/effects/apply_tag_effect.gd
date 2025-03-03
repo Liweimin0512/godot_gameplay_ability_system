@@ -6,8 +6,9 @@ class_name ApplyTagEffect
 @export_enum("stun") var tag_type: String = "stun"
 var _targets : Array[Node]
 
-func _perform_action(context: Dictionary = {}) -> STATUS:
-	_targets = context.get("targets")
+
+func _perform_action(context: AbilityContext) -> STATUS:
+	_targets = context.get_all_targets()
 	for target in _targets:
 		var ability_component = target.ability_component
 		if not ability_component:

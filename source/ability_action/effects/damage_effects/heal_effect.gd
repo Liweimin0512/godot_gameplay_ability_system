@@ -8,26 +8,16 @@ func _init() -> void:
 
 
 ## 计算治疗量
-func _calculate_damage(source: Node, _target: Node, context: Dictionary) -> float:
-	return healing_value
+func _calculate_damage(_source: Node, _target: Node, context: AbilityContext) -> void:
+	context.damage_data.healing = healing_value
 
 
 ## 应用治疗
-func _apply_damage(defender: Node, amount: float, context: Dictionary) -> void:
-	context.healing = amount
+func _apply_damage(defender: Node, context: AbilityContext) -> void:
 	var ability_resource_component: AbilityResourceComponent = defender.ability_resource_component
 	var health_resource : AbilityResource = ability_resource_component.get_resource("health")
 	if not health_resource: 
 		GASLogger.error("can not found health resource")
 		return
-	health_resource.restore(amount)
-	context.merge({
-		"is_hit": _is_hit,
-		"is_critical": _is_critical,
-		"healing": amount,
-		"damage_type": damage_type,
-		"is_indirect": is_indirect,
-		"force_critical": false,
-		"force_hit": false,
-	}, true)
-	AbilitySystem.push_ability_event("healing_completed", context.duplicate())
+	health_resource.restore(context.damage_data.healing)
+	AbilitySystem.push_ability_event("healing_completed", context)

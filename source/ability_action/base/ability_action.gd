@@ -28,27 +28,21 @@ var _script_name: StringName = "":
 ## 执行过了，有些技能需要条件判断，条件不满足需要撤回到不满足的步骤
 var is_executed: bool = false
 
-signal applied(context: Dictionary)
-signal executing(context: Dictionary)
-signal executed(context: Dictionary)
-signal revoked(context: Dictionary)
 
 func _init():
 	resource_local_to_scene = true
 
 
 ## 执行
-func execute(context: Dictionary) -> STATUS:
+func execute(context: AbilityContext) -> STATUS:
 	if not enabled:
 		return STATUS.FAILURE
 
-	executing.emit(context)
 	if pre_delay > 0.0:
 		await AbilitySystem.get_tree().create_timer(pre_delay).timeout
 	state = await _execute(context)
 	if state == STATUS.SUCCESS:
 		is_executed = true
-		executed.emit(context)
 		if post_delay > 0.0:
 			await AbilitySystem.get_tree().create_timer(post_delay).timeout
 	return state
@@ -62,7 +56,6 @@ func revoke() -> bool:
 	if not is_executed: 
 		return true
 	var ok = _revoke()
-	revoked.emit(ok)
 	return ok
 
 
@@ -74,7 +67,7 @@ func get_action(p_action_name: StringName) -> AbilityAction:
 
 
 ## 子类中实现的执行方法
-func _execute(_context: Dictionary) -> STATUS:
+func _execute(_context: AbilityContext) -> STATUS:
 	return STATUS.SUCCESS
 
 

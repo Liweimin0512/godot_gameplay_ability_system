@@ -13,26 +13,15 @@ class_name ModifyAbilityResourceEffect
 @export var is_temporary: bool = false
 ## 临时资源
 var _ability_resource : AbilityResource
-## 修改的资源数量
-var _amount : int
 
-func _perform_action(context: Dictionary = {}) -> STATUS:
-	var targets : Array[Node] = context.get("targets", [])
+
+func _perform_action(context: AbilityContext) -> STATUS:
+	var targets : Array[Node] = context.get_all_targets()
 	for target in targets:
 		var result = _modify_resource(target)
 		if result == false:
 			return STATUS.FAILURE
 	return STATUS.SUCCESS
-
-
-func _revoke() -> bool:
-	if is_temporary:
-		if _amount > 0:
-			_ability_resource.consume(_amount)
-		else:
-			_ability_resource.restore(_amount)
-	return true
-
 
 func _modify_resource(target: Node) -> bool:
 	var ability_resource_component : AbilityResourceComponent = target.ability_resource_component
@@ -40,20 +29,20 @@ func _modify_resource(target: Node) -> bool:
 	if not _ability_resource:
 		GASLogger.error("ModifyAbilityResourceNode ability_resource is null")
 		return false
-	_amount = ability_resource_amount
+	var amount = ability_resource_amount
 	if modify_type == "percentage":
-		_amount = ability_resource_component.get_resource_value(ability_resource_id) * _amount
+		amount = ability_resource_component.get_resource_value(ability_resource_id) * amount
 	else:
-		_amount = round(_amount)
-	if _amount > 0:
-		_ability_resource.restore(_amount)
+		amount = round(amount)
+	if amount > 0:
+		_ability_resource.restore(amount)
 	else:
-		_ability_resource.consume(_amount)
+		_ability_resource.consume(amount)
 	return true
 
 
 func _description_getter() -> String:
 	if modify_type == "value":
-		return "获得{0}点{1}".format([_amount, _ability_resource.ability_resource_name])
+		return "获得{0}点{1}".format([ability_resource_amount, _ability_resource.ability_resource_name])
 	else:
-		return "获得{0}% {1}".format([_amount * 100, _ability_resource.ability_resource_name])
+		return "获得{0}% {1}".format([ability_resource_amount * 100, _ability_resource.ability_resource_name])
