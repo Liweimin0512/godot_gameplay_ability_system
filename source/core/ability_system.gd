@@ -8,47 +8,48 @@ const BASE_PATH := "res://addons/godot_gameplay_ability_system"
 
 ## 技能事件名前缀
 @export var ability_event_prefix: StringName = "ability"
-# 注册的限制器类型
-var _restriction_types : Dictionary = {
-	&"cooldown": CooldownRestriction,
-	&"usage_count": UsageCountRestriction,
-	&"resource_cost": ResourceCostRestriction,
-}
 
+## 触发器管理器，这里直接使用CoreSystem的实现
 var trigger_manager : CoreSystem.TriggerManager:
 	get:
 		return CoreSystem.trigger_manager
 	set(_value):
 		push_error("trigger_manager is read-only")
+## 能力效果动作管理器
 var action_manager : ActionManagerInterface:
 	get:
 		if not action_manager:
 			action_manager = AbilityActionManager.new()
 			add_child(action_manager)
 		return action_manager
+## 能力表现管理器
 var presentation_manager : PresentationManager:
 	get:
 		if not presentation_manager:
 			presentation_manager = PresentationManager.new()
 			add_child(presentation_manager)
 		return presentation_manager
-
+## 初始化状态
 var _initialized: bool = false
 
 ## 资源管理器
 var _resource_manager : CoreSystem.ResourceManager:
 	get:
 		return CoreSystem.resource_manager
+## 日志管理器
 var _logger: CoreSystem.Logger:
 	get:
 		return CoreSystem.logger
-		
+## 事件总线
 var _event_bus : CoreSystem.EventBus:
 	get:
 		return CoreSystem.event_bus
 
+## 技能组件管理字典
 var _ability_components : Dictionary[Node, AbilityComponent] = {}
+## 属性组件管理字典
 var _attribute_components : Dictionary[Node, AbilityAttributeComponent] = {}
+## 资源组件管理字典
 var _resource_components : Dictionary[Node, AbilityResourceComponent] = {}
 
 # endregion
@@ -85,22 +86,22 @@ func initialize(
 
 ## 创建技能实例
 func create_ability_instance(ability_id: String) -> Ability:
-	var ability_data: Ability = DataManager.get_data_model("ability", ability_id)
-	if not ability_data:
+	var ability: Ability = DataManager.get_data_model("ability", ability_id)
+	if not ability:
 		_logger.error("Invalid ability id: %s" % ability_id)
 		return null
 	
-	return ability_data
+	return ability
 
 
 ## 创建技能效果实例
 func create_ability_effect_instance(ability_effect_id: String) -> AbilityEffect:
-	var ability_effect_data: AbilityEffect = DataManager.get_data_model("ability_effect", ability_effect_id)
-	if not ability_effect_data:
+	var ability_effect: AbilityEffect = DataManager.get_data_model("ability_effect", ability_effect_id)
+	if not ability_effect:
 		_logger.error("Invalid ability effect id: %s" % ability_effect_id)
 		return null
 	
-	return ability_effect_data
+	return ability_effect
 
 
 # 事件相关
@@ -162,27 +163,6 @@ func get_ability_resource_component(unit: Node) -> AbilityResourceComponent:
 		_resource_components[unit] = ability_resource_component
 	return ability_resource_component
 
-
-# 限制器相关
-
-## 注册限制器类型
-func register_restriction_type(type: StringName, restriction_class: GDScript) -> void:
-	_restriction_types[type] = restriction_class
-	
-## 注销限制器类型
-func unregister_restriction_type(type: StringName) -> void:
-	_restriction_types.erase(type)
-
-## 创建限制器实例
-func create_restriction(config: Dictionary) -> AbilityRestriction:
-	var type = config.get("type", "")
-	if not _restriction_types.has(type):
-		GASLogger.error("Unknown restriction type: %s" % type)
-		return null
-		
-	var restriction_class = _restriction_types[type]
-	return restriction_class.new(config)
-
 #endregion
 
 #region 私有方法
@@ -213,6 +193,7 @@ func _on_ability_action_types_loaded(type_name: String, completed_callable: Call
 	_initialized = true
 	initialized.emit(true)
 	_logger.info("AbilitySystem initialized successfully")
+
 
 ## 加载进度回调
 ## [param progress] 加载进度
