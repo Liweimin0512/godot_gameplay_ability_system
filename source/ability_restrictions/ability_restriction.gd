@@ -14,3 +14,7 @@ func before_ability_execute(context: AbilityContext) -> void:
 ## 技能使用后调用
 func after_ability_execute(context: AbilityContext) -> void:
 	pass
+
+## 更新
+func update(delta : float) -> void:
+	pass

@@ -81,6 +81,24 @@ func remove() -> void:
 		sub_ability.remove()
 
 
+## 更新
+func update(delta : float) -> void:
+	if not is_active:
+		return
+	
+	# 更新限制器
+	for restriction in restrictions:
+		restriction.update(delta)
+
+	# 更新自身effects
+	for effect in ability_effects:
+		effect.update_effect(delta)
+	
+	# 更新子能力
+	for sub_ability in sub_abilities:
+		sub_ability.update(delta)
+
+
 ## 能否执行
 func can_execute(context: AbilityEffectContext) -> bool:
 	# 缓存检查

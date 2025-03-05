@@ -10,23 +10,39 @@ enum DURATION_TYPE {
 
 @export var effect_id : StringName
 @export var effect_tags : Array[StringName]
-@export var is_hidden: bool = false         ## 是否隐藏效果
+@export var is_hidden: bool = false             ## 是否隐藏效果
 
-@export_group("Stacking")                   ## 堆叠相关
-@export var stack_count : int = 1           ## 可叠加次数
-@export var refresh_on_stack: bool = true   ## 在堆叠时刷新效果
+@export_group("Stacking")                       ## 堆叠相关
+@export var can_stack : bool = false            ## 是否能堆叠
+@export var stack_count : int = 1               ## 可叠加次数
+@export var refresh_on_stack: bool = true       ## 在堆叠时刷新效果
+## 堆叠时的参数计算规则
+@export var stack_param_rules : Dictionary = {
+    # "param_name": {
+    #     "type": "add"|"multiply"|"max"|"custom",
+    #     "value": float,  # 加法或乘法的系数
+    #     "custom_func": Callable  # 自定义计算函数
+    # }
+}
 
-@export_group("Duration")                   ## 持续时间相关
+@export_group("Duration")                       ## 持续时间相关
 @export var duration_type : DURATION_TYPE = DURATION_TYPE.INSTANT
-@export var duration: float = 0.0           ## 持续时间（秒或回合）
+@export var duration: float = 0.0               ## 持续时间（秒或回合）
+@export var remaining_duration : float = 0.0    ## 剩余持续时间（秒或回合）
+@export var is_active : bool = false            ## 是否激活
 
-@export_group("Execution")                  ## 执行相关
-@export var trigger : Trigger               ## 触发器，没有触发器则直接执行
-@export var action_tree_id: StringName = "" ## 动作树ID
+@export_group("Actions")                      ## 执行相关
+@export var trigger : Trigger                   ## 触发器，没有触发器则直接执行
+@export var action_tree_id: StringName = ""     ## 动作树ID
+@export var effect_params : Dictionary = {}:    ## 效果参数配置
+    set(value):
+        effect_params = value
+        _update_params_with_stacks()
 
-@export_group("modifier")                   ## 修改相关
+@export_group("Modifier")                       ## 修改相关
 @export var attribute_modifiers : Array[AbilityAttributeModifier]
 @export var tag_modifiers : Array[StringName] = []
+
 
 # 运行时状态
 var source : Node   # 效果来源
@@ -34,7 +50,15 @@ var target : Node   # 效果目标
 var current_stacks : int = 1                 ## 当前堆叠次数
 var remaining_duration : float = 0.0         ## 剩余持续时间
 var is_active : bool = false                 ## 是否激活
+var applied_attribute_modifiers : Array[AbilityAttributeModifier] = [] # 记录已经应用的属性修改器
 
+
+signal stack_limit_reached                                          ## 堆叠次数达到上限
+signal stack_changed(old_value : int, new_value : int)              ## 堆叠次数变化
+signal effect_started                                               ## 效果开始
+signal effect_ended                                                 ## 效果结束
+signal effect_paused                                                ## 效果暂停
+signal effect_resumed                                               ## 效果恢复
 
 func _init_from_data(data: Dictionary) -> void:
 	for atr_modifier_data in data.get("attribute_modifiers", []):
@@ -83,13 +107,25 @@ func update_effect(delta : float) -> void:
         if remaining_duration <= 0:
             remove_effect()
             return
-
+    # 更新持续效果，如果需要
+    _update_attribute_modifiers()
 
 ## 添加堆叠
-func add_stack() -> bool:
-	if current_stacks >= stack_count:
+func try_stack() -> bool:
+    if not can_stack or current_stacks >= stack_count:
 		return false
+
 	current_stacks += 1
+    if refresh_on_stack:
+        remaining_duration = duration
+
+    # 更新效果参数
+    _update_params_with_stacks()
+
+    # 更新修改器
+    _remove_attribute_modifiers(target)         # 先移除旧的
+    _apply_attribute_modifiers(target)          # 再应用新的
+
 	return true
 
 
@@ -108,7 +144,11 @@ func _apply_attribute_modifiers(target) -> void:
 		GASLogger.error("target " + str(target) + " missing AbilityAttributeComponent")
 		return
 	for modifier in attribute_modifiers:
-		attribute_component.apply_attribute_modifier(modifier)
+        # 根据堆叠调整修改器的值
+        var stacked_modifier = modifier.duplicate()
+        stacked_modifier.value *= current_stacks
+		attribute_component.apply_attribute_modifier(stacked_modifier)
+        applied_attribute_modifiers.append(stacked_modifier)
 
 
 ## 移除属性修改器
@@ -117,8 +157,14 @@ func _remove_attribute_modifiers(target) -> void:
 	if not attribute_component:
 		GASLogger.error("target " + str(target) + " missing AbilityAttributeComponent")
 		return
-	for modifier in attribute_modifiers:
+	for modifier in applied_modifiers:
 		attribute_component.remove_attribute_modifier(modifier)
+
+
+## 更新修改器
+## [TODO] 这里可以处理需要随时间变化的修改器
+func _update_attribute_modifiers(target) -> void:
+    pass
 
 
 ## 应用标签修改
@@ -142,8 +188,8 @@ func _remove_tag_modifiers(target) -> void:
 func _apply_ability_action(context: AbilityEffectContext) -> void:
 	if action_tree_id.is_empty():
 		return
-	AbilitySystem.action_manager.execute_action_tree(action_tree_id, context)
-
+    context.effect_params = current_params
+	await AbilitySystem.action_manager.execute_action_tree(action_tree_id, context)
 
 ## 设置触发器
 func _setup_trigger() -> void:
@@ -163,3 +209,28 @@ func _cleanup_trigger() -> void:
 func _on_trigger_success(context: Dictionary) -> void:
 	if is_active: 
 		_apply_ability_action(AbilityEffectContext.from_dictionary(context))
+
+
+## 更新当前参数
+func _update_params_with_stacks() -> void:
+    current_params = effect_params.duplicate(true)
+
+    if current_stacks <= 1: return
+
+    # 根据堆叠规则计算参数
+    for param_name in stack_param_rules:
+        var rule = stack_param_rules[param_name]
+        var base_value = effect_params.get(param_name, 0.0)
+
+        match rule.type:
+            "add":
+                current_params[param_name] = base_value + (rule.value * (current_stacks - 1))
+            "multiply":
+                current_params[param_name] = base_value * pow(rule.value, current_stacks - 1)
+            "max":
+                current_params[param_name] = maxf(base_value, rule.value)
+            "custom":
+                if rule.has(custom_func):
+                    current_params[param_name] = rule.custom_func.call(base_value, current_stacks)
+            _:
+                GASLogger.error("Invalid stack param rule type: " + rule.type)
