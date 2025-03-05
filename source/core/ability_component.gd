@@ -4,9 +4,9 @@ class_name AbilityComponent
 ## 技能组件，维护广义上的技能（BUFF、SKILL）等
 ## 当前单位所拥有的全部技能（包括BUFF）
 
-@export var _abilities : Array[Ability]
-## 技能标签
-@export var _ability_tags : Array[StringName] = []
+@export var _abilities : Array[Ability]									## 技能列表
+@export var _ability_tags : Array[StringName] = []						## 技能标签
+@export var _ability_effects : Array[AbilityEffect] = []				## 技能效果
 
 ## 技能释放前发出
 signal ability_cast_started(ability: Ability, context: Dictionary)
@@ -80,5 +80,30 @@ func remove_ability_tag(tag: StringName) -> void:
 	_ability_tags.erase(tag)
 #endregion
 
+#region 能力效果相关
+
+## 添加效果
+func add_ability_effect(effect: AbilityEffect) -> void:
+	_ability_effects.append(effect)
+
+## 移除效果
+func remove_ability_effect(effect: AbilityEffect) -> void:
+	_ability_effects.erase(effect)
+
+## 更新效果
+func update_ability_effects(delta : float) -> void:
+	for effect in _ability_effects:
+		effect.update_effect(delta)
+
+#endregion
+
 func _to_string() -> String:
 	return get_parent().to_string()
+
+static func get_ability_component(owner: Node) -> AbilityComponent:
+	var component : AbilityComponent = owner.get("ability_component")
+	if not component:
+		component = owner.get_node_or_null("AbilityComponent")
+	if not component:
+		_logger.error("owner {0} missing AbilityComponent".format([owner.to_string()]))
+	return component

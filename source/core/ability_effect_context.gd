@@ -1,8 +1,8 @@
 @tool
 extends Resource
-class_name AbilityContext
+class_name AbilityEffectContext
 
-## 技能上下文，包含技能执行过程中的所有相关数据
+## 技能效果上下文，包含技能执行过程中的所有相关数据
 
 # 基础属性
 var ability: Ability  # 技能实例

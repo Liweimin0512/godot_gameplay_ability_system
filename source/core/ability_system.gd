@@ -82,6 +82,7 @@ func initialize(
 	presentation_manager.initialized.connect(func(success: bool): DataManager.load_models(model_types, _on_model_loaded.bind(success)))
 	action_manager.initialize(_resource_manager, DataManager, action_paths, action_table_type)
 
+
 ## 创建技能实例
 func create_ability_instance(ability_id: String) -> Ability:
 	var ability_data: Ability = DataManager.get_data_model("ability", ability_id)
@@ -90,6 +91,16 @@ func create_ability_instance(ability_id: String) -> Ability:
 		return null
 	
 	return ability_data
+
+
+## 创建技能效果实例
+func create_ability_effect_instance(ability_effect_id: String) -> AbilityEffect:
+	var ability_effect_data: AbilityEffect = DataManager.get_data_model("ability_effect", ability_effect_id)
+	if not ability_effect_data:
+		_logger.error("Invalid ability effect id: %s" % ability_effect_id)
+		return null
+	
+	return ability_effect_data
 
 
 # 事件相关

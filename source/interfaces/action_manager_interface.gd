@@ -14,24 +14,24 @@ func initialize(
 
 
 ## 应用行动树
-func apply_action_tree(_ability: Ability) -> void:
+func apply_action_tree(_action_id: StringName) -> void:
 	pass
 
 
 ## 移除行动树缓存
-func remove_action_tree(_ability: Ability) -> void:
+func remove_action_tree(_action_id: StringName) -> void:
 	pass
 
 
 ## 执行行动树
-func execute_action_tree(_ability: Ability, _context: AbilityContext) -> void:
+func execute_action_tree(_action_id: StringName, _context: AbilityEffectContext) -> void:
 	pass
 
 
-func get_tree_description(ability: Ability) -> String:
+func get_tree_description(_action_id: StringName, context: AbilityEffectContext) -> String:
 	return ""
 
 
 ## 获取行动树
-func _create_action_tree(_ability: Ability) -> AbilityAction:
+func _create_action_tree(_action_id: StringName) -> AbilityAction:
 	return null

@@ -13,7 +13,8 @@ var _data_manager : DataManager
 var _action_table_type : TableType
 
 ## 效果树缓存
-var _action_trees: Dictionary[Ability, AbilityAction] = {}
+var _action_trees: Dictionary[StringName, AbilityAction] = {}
+
 
 ## 初始化
 func initialize(resource_manager : CoreSystem.ResourceManager , data_manager : DataManager, 
@@ -46,59 +47,59 @@ func initialize(resource_manager : CoreSystem.ResourceManager , data_manager : D
 
 
 ## 应用行动树
-func apply_action_tree(ability: Ability) -> void:
-	var action_tree : AbilityAction = _action_trees.get(ability, null)
+func apply_action_tree(action_id: StringName) -> void:
+	var action_tree : AbilityAction = _action_trees.get(action_id, null)
 	if action_tree == null:
-		action_tree = _create_action_tree(ability)
+		action_tree = _create_action_tree(action_id)
 		if not action_tree:
-			GASLogger.error("Failed to create action tree: %s" % ability.action_tree_id)
+			GASLogger.error("Failed to create action tree: %s" % action_id)
 			return
-		_action_trees[ability] = action_tree
+		_action_trees[action_id] = action_tree
 
 
 ## 执行行动树
-func execute_action_tree(ability: Ability, context: AbilityContext) -> void:
-	var action_tree : AbilityAction = _get_action_tree(ability)
+func execute_action_tree(action_id: StringName, context: AbilityEffectContext) -> void:
+	var action_tree : AbilityAction = _get_action_tree(action_id)
 	if not action_tree:
 		return
 	await action_tree.execute(context)
 
 
 ## 移除行动树缓存
-func remove_action_tree(ability: Ability) -> void:
-	var action_tree : AbilityAction = _get_action_tree(ability)
+func remove_action_tree(action_id: StringName) -> void:
+	var action_tree : AbilityAction = _get_action_tree(action_id)
 	if not action_tree:
 		return
 	action_tree.revoke()
 
 
 ## 获取行动树描述
-func get_tree_description(ability: Ability) -> String:
-	var action_tree : AbilityAction = _get_action_tree(ability)
+func get_tree_description(action_id: StringName, context: AbilityEffectContext) -> String:
+	var action_tree : AbilityAction = _get_action_tree(action_id)
 	if not action_tree:
 		return ""
-	return action_tree.get_tree_description()
+	return action_tree.get_tree_description(context)
 
 
 ## 获取行动树
-func _create_action_tree(ability: Ability) -> AbilityAction:
-	if _action_trees.has(ability):
-		return _action_trees[ability]
+func _create_action_tree(action_tree_id : StringName) -> AbilityAction:
+	if _action_trees.has(action_tree_id):
+		return _action_trees[action_tree_id]
 	
-	var action_tree_config : Dictionary = _data_manager.get_table_item(_action_table_type.table_name, ability.action_tree_id)
+	var action_tree_config : Dictionary = _data_manager.get_table_item(_action_table_type.table_name, action_tree_id)
 	if not action_tree_config:
-		GASLogger.warning("Action tree not registered: %s" % ability.action_tree_id)
+		GASLogger.warning("Action tree not registered: %s" % action_tree_id)
 		return null
 	var action_tree : AbilityAction = _create_action_from_config(action_tree_config)
-	_action_trees[ability] = action_tree
+	_action_trees[action_tree_id] = action_tree
 	return action_tree
 
 
 ## 获取行动树
-func _get_action_tree(ability: Ability) -> AbilityAction:
-	var action_tree : AbilityAction = _action_trees.get(ability, null)
+func _get_action_tree(action_id: StringName) -> AbilityAction:
+	var action_tree : AbilityAction = _action_trees.get(action_id, null)
 	if not action_tree:
-		GASLogger.error("Failed to get action tree: %s" % ability.action_tree_id)
+		GASLogger.error("Failed to get action tree: %s" % action_id)
 		return null
 	return action_tree
 
