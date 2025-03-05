@@ -10,7 +10,7 @@ class_name AbilityComponent
 
 func setup(ability_set: Array[Ability]) -> void:
 	for ability in ability_set:
-		apply_ability(ability, AbilityContext.from_dictionary({"caster": self}))
+		apply_ability(ability, AbilityEffectContext.from_dictionary({"caster": self}))
 		print("ability_component: {0} 初始化".format([owner.to_string()]))
 
 #region 技能相关
@@ -35,7 +35,7 @@ func get_same_ability(ability: Ability) -> Ability:
 
 
 ## 应用技能
-func apply_ability(ability: Ability, ability_context: AbilityContext) -> void:
+func apply_ability(ability: Ability, ability_context: AbilityEffectContext) -> void:
 	ability.caster = get_parent()
 	ability.apply(ability_context)
 	_abilities.append(ability)
@@ -48,7 +48,7 @@ func remove_ability(ability: Ability) -> void:
 
 
 ## 尝试释放技能
-func try_execute_ability(ability: Ability, context: AbilityContext) -> void:
+func try_execute_ability(ability: Ability, context: AbilityEffectContext) -> void:
 	await ability.execute(context)
 
 
@@ -122,20 +122,20 @@ func update_ability_effects(delta : float) -> void:
 
 
 func get_effects_by_all_tags(tags: Array[StringName]) -> Array[AbilityEffect]:
-    var matched_effects: Array[AbilityEffect] = []
-    
-    # 1. 检查独立效果
-    for effect in _ability_effects:
-        if _has_all_tags(effect.effect_tags, tags):
-            matched_effects.append(effect)
-    
-    # 2. 检查技能效果
-    for ability in _abilities:
-        for effect in ability.ability_effects:
-            if _has_all_tags(effect.effect_tags, tags):
-                matched_effects.append(effect)
-    
-    return matched_effects
+	var matched_effects: Array[AbilityEffect] = []
+	
+	# 1. 检查独立效果
+	for effect in _ability_effects:
+		if _has_all_tags(effect.effect_tags, tags):
+			matched_effects.append(effect)
+	
+	# 2. 检查技能效果
+	for ability in _abilities:
+		for effect in ability.ability_effects:
+			if _has_all_tags(effect.effect_tags, tags):
+				matched_effects.append(effect)
+	
+	return matched_effects
 
 
 func get_effects_by_any_tags(tags: Array[StringName]) -> Array[AbilityEffect]:
@@ -172,10 +172,11 @@ func remove_effects_by_tags(tags : Array[StringName]) -> void:
 func _to_string() -> String:
 	return get_parent().to_string()
 
+
 static func get_ability_component(owner: Node) -> AbilityComponent:
 	var component : AbilityComponent = owner.get("ability_component")
 	if not component:
 		component = owner.get_node_or_null("AbilityComponent")
 	if not component:
-		_logger.error("owner {0} missing AbilityComponent".format([owner.to_string()]))
+		GASLogger.error("owner {0} missing AbilityComponent".format([owner.to_string()]))
 	return component

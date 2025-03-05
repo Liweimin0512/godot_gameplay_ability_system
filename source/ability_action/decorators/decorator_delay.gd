@@ -10,7 +10,7 @@ class_name DecoratorDelay
 var _is_first_execution: bool = true
 
 ## 执行装饰器
-func _execute(context: AbilityContext) -> STATUS:
+func _execute(context: AbilityEffectContext) -> STATUS:
 	# 检查子节点
 	if not child : return STATUS.FAILURE
 		

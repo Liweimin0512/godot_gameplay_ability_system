@@ -32,8 +32,6 @@ var _can_use_reason : String = ""								## 不能使用的原因
 ## [param data] 数据字典
 func _init_from_data(data : Dictionary) -> void:
 	ability_id = data.get("ID", "")
-	if data.has("trigger"):
-		trigger = Trigger.new(data.get("trigger", {}))
 	for restriction_config in data.get("restrictions", []):
 		var restriction : AbilityRestriction = AbilitySystem.create_restriction(restriction_config)
 		add_restriction(restriction)
@@ -140,7 +138,6 @@ func execute(context: AbilityEffectContext) -> void:
 ## 重置
 ## [TODO] 暂时只重置限制器, 而且没调用，后续优化
 func reset() -> void:
-	trigger.reset()
 	for restriction in restrictions:
 		restriction.reset()
 

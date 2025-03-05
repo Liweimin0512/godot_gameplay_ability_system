@@ -8,7 +8,7 @@ class_name DecoratorRepeat
 ## 重复间隔
 @export var repeat_interval: float = 0.0
 
-func _execute(context: AbilityContext) -> STATUS:
+func _execute(context: AbilityEffectContext) -> STATUS:
 	for i in repeat_count:
 		context.repeat_index = i + 1
 		# 执行子节点

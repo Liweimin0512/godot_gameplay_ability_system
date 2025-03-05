@@ -8,12 +8,12 @@ func _init() -> void:
 
 
 ## 计算治疗量
-func _calculate_damage(_source: Node, _target: Node, context: AbilityContext) -> void:
+func _calculate_damage(_source: Node, _target: Node, context: AbilityEffectContext) -> void:
 	context.damage_data.healing = healing_value
 
 
 ## 应用治疗
-func _apply_damage(defender: Node, context: AbilityContext) -> void:
+func _apply_damage(defender: Node, context: AbilityEffectContext) -> void:
 	var ability_resource_component: AbilityResourceComponent = defender.ability_resource_component
 	var health_resource : AbilityResource = ability_resource_component.get_resource("health")
 	if not health_resource: 

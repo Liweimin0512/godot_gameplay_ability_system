@@ -15,7 +15,7 @@ class_name ModifyAbilityResourceEffect
 var _ability_resource : AbilityResource
 
 
-func _perform_action(context: AbilityContext) -> STATUS:
+func _perform_action(context: AbilityEffectContext) -> STATUS:
 	var targets : Array[Node] = context.get_all_targets()
 	for target in targets:
 		var result = _modify_resource(target)

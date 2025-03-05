@@ -10,11 +10,11 @@ func _init(config : Dictionary = {}) -> void:
 	cooldown_time = config.get("cooldown", 0.0)
 	remaining_cooldown_time = cooldown_time
 
-func can_execute(_context: AbilityContext) -> bool:
+func can_execute(_context: AbilityEffectContext) -> bool:
 	var can_use = remaining_cooldown_time <= 0
 	if not can_use:
 		can_use_reason = "cooldown"
 	return can_use
 
-func before_ability_execute(_context: AbilityContext) -> void:
+func before_ability_execute(_context: AbilityEffectContext) -> void:
 	remaining_cooldown_time = cooldown_time

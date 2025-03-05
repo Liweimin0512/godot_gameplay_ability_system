@@ -13,7 +13,7 @@ class_name ProjectileEffect
 ## 目标位置挂点
 @export var to_node_type : StringName = ""
 
-func _perform_action(context: AbilityContext) -> STATUS:
+func _perform_action(context: AbilityEffectContext) -> STATUS:
 	var from_pos = context.get("from")
 	var to_pos = context.get("to")
 	

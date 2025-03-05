@@ -22,7 +22,7 @@ const BASE_CRIT_MULTIPLIER : float = 1.5
 var _is_critical : bool = false
 var _is_hit : bool = false
 
-func _perform_action(context: AbilityContext) -> STATUS:
+func _perform_action(context: AbilityEffectContext) -> STATUS:
 	var caster : Node = context.caster
 	var targets : Array[Node] = context.get_all_targets()
 
@@ -40,7 +40,7 @@ func _perform_action(context: AbilityContext) -> STATUS:
 
 
 ## 伤害计算
-func _calculate_damage(attacker: Node, defender: Node, context: AbilityContext) -> void:
+func _calculate_damage(attacker: Node, defender: Node, context: AbilityEffectContext) -> void:
 	if _is_hit == false:
 		context.damage_data.damage = 0
 		return 
@@ -61,7 +61,7 @@ func _calculate_damage(attacker: Node, defender: Node, context: AbilityContext) 
 
 
 ## 应用伤害
-func _apply_damage(defender: Node, context: AbilityContext) -> void:
+func _apply_damage(defender: Node, context: AbilityEffectContext) -> void:
 	var damage = context.damage_data.damage
 	var ability_resource_component: AbilityResourceComponent = defender.ability_resource_component
 	var health_resource : AbilityResource = ability_resource_component.get_resource("health")
@@ -72,7 +72,7 @@ func _apply_damage(defender: Node, context: AbilityContext) -> void:
 
 
 ## 获取基础伤害
-func _get_base_damage(attacker: Node, context: AbilityContext) -> float:
+func _get_base_damage(attacker: Node, context: AbilityEffectContext) -> float:
 	# 基类提供基础实现，子类可以重写
 	return _get_attribute_value(attacker, base_damage_attribute) * _get_damage_multiplier(context)
 
@@ -83,13 +83,13 @@ func _get_defense(defender: Node) -> float:
 
 
 ## 获取技能伤害倍数
-func _get_damage_multiplier(context: AbilityContext) -> float:
+func _get_damage_multiplier(context: AbilityEffectContext) -> float:
 	var multiplier = context.damage_data.damage_multiplier
 	return multiplier
 
 
 ## 获取暴击伤害倍数
-func _get_crit_multiplier(attacker: Node, context: AbilityContext) -> float:
+func _get_crit_multiplier(attacker: Node, context: AbilityEffectContext) -> float:
 	var multiplier = 1.0
 	
 	# 检查暴击
@@ -101,7 +101,7 @@ func _get_crit_multiplier(attacker: Node, context: AbilityContext) -> float:
 
 
 ## 判定是否命中
-func _roll_hit(attacker: Node, defender: Node, context: AbilityContext) -> bool:
+func _roll_hit(attacker: Node, defender: Node, context: AbilityEffectContext) -> bool:
 	var force_hit = context.damage_data.force_hit
 
 	var dodge_rate = _get_attribute_value(defender, dodge_rate_attribute)
@@ -111,7 +111,7 @@ func _roll_hit(attacker: Node, defender: Node, context: AbilityContext) -> bool:
 
 
 ## 判定是否暴击
-func _roll_critical(attacker: Node, context: AbilityContext) -> bool:
+func _roll_critical(attacker: Node, context: AbilityEffectContext) -> bool:
 	var force_critical = context.damage_data.force_critical
 	if force_critical:
 		# 强制暴击

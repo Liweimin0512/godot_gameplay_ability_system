@@ -118,7 +118,7 @@ func unregister_trigger(trigger_type: StringName, trigger: Trigger) -> void:
 	trigger_manager.unregister_trigger(trigger_type, trigger)
 
 ## 发送技能事件
-func push_ability_event(event_name: StringName, context : AbilityContext = null) -> void:
+func push_ability_event(event_name: StringName, context : AbilityEffectContext = null) -> void:
 	_event_bus.push_event(_get_ability_event_name(event_name), context)
 	ability_event.emit(event_name, context)
 

@@ -7,7 +7,7 @@ class_name ConditionAbility
 
 
 ## 执行
-func _execute(context: AbilityContext) -> STATUS:
+func _execute(context: AbilityEffectContext) -> STATUS:
 	if ability_ids.is_empty():
 		# 未设置技能ID，直接成功
 		return await child.execute(context) if child else STATUS.SUCCESS

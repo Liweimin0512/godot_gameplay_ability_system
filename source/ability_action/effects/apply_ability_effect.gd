@@ -9,7 +9,7 @@ var _ability : Ability
 var _targets : Array[Node]
 
 ## 应用效果
-func _perform_action(context: AbilityContext) -> STATUS:
+func _perform_action(context: AbilityEffectContext) -> STATUS:
 	var target := context.get("target")
 	if not target:
 		GASLogger.error("Apply Ability Action target is null")

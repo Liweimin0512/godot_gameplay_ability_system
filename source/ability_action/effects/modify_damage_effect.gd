@@ -9,7 +9,7 @@ var modify_type : String = "value"
 ## 修改值
 @export var modify_value : float = 0.1
 
-func _perform_action(context: AbilityContext) -> STATUS:
+func _perform_action(context: AbilityEffectContext) -> STATUS:
 	if modify_type == "value":
 		context.damage_data.damage = clamp(context.damage_data.damage + modify_value, 0.0, INF)
 	else:

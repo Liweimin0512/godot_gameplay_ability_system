@@ -3,9 +3,9 @@ class_name AbilityEffect
 
 ## 持续类型
 enum DURATION_TYPE {
-	INSTANT,    # 即时效果
-	INFINITE,   # 无限持续
-	TIMED,      # 有限持续
+	INSTANT,    # 即时效果，执行之后立刻销毁
+	INFINITE,   # 无限持续，直到手动移除
+	TIMED,      # 有限持续，持续时间或回合数
 }
 
 @export var effect_id : StringName
@@ -18,26 +18,24 @@ enum DURATION_TYPE {
 @export var refresh_on_stack: bool = true       ## 在堆叠时刷新效果
 ## 堆叠时的参数计算规则
 @export var stack_param_rules : Dictionary = {
-    # "param_name": {
-    #     "type": "add"|"multiply"|"max"|"custom",
-    #     "value": float,  # 加法或乘法的系数
-    #     "custom_func": Callable  # 自定义计算函数
-    # }
+	# "param_name": {
+	#     "type": "add"|"multiply"|"max"|"custom",
+	#     "value": float,  # 加法或乘法的系数
+	#     "custom_func": Callable  # 自定义计算函数
+	# }
 }
 
 @export_group("Duration")                       ## 持续时间相关
 @export var duration_type : DURATION_TYPE = DURATION_TYPE.INSTANT
 @export var duration: float = 0.0               ## 持续时间（秒或回合）
-@export var remaining_duration : float = 0.0    ## 剩余持续时间（秒或回合）
-@export var is_active : bool = false            ## 是否激活
 
 @export_group("Actions")                      ## 执行相关
 @export var trigger : Trigger                   ## 触发器，没有触发器则直接执行
 @export var action_tree_id: StringName = ""     ## 动作树ID
 @export var effect_params : Dictionary = {}:    ## 效果参数配置
-    set(value):
-        effect_params = value
-        _update_params_with_stacks()
+	set(value):
+		effect_params = value
+		_update_params_with_stacks()
 
 @export_group("Modifier")                       ## 修改相关
 @export var attribute_modifiers : Array[AbilityAttributeModifier]
@@ -51,7 +49,7 @@ var current_stacks : int = 1                 ## 当前堆叠次数
 var remaining_duration : float = 0.0         ## 剩余持续时间
 var is_active : bool = false                 ## 是否激活
 var applied_attribute_modifiers : Array[AbilityAttributeModifier] = [] # 记录已经应用的属性修改器
-
+var current_params: Dictionary
 
 signal stack_limit_reached                                          ## 堆叠次数达到上限
 signal stack_changed(old_value : int, new_value : int)              ## 堆叠次数变化
@@ -81,13 +79,17 @@ func apply_effect(context: AbilityEffectContext) -> void:
 	source = context.caster
 	target = context.target
 
+	if duration_type == DURATION_TYPE.INSTANT:
+		_apply_ability_action(context)
+		remove_effect() # 即时效果直接销毁
+		return
+
 	_apply_attribute_modifiers(target)
 	_apply_tag_modifiers(target)
+	
 	# 设置触发器
+	_setup_trigger()
 
-	if not trigger:
-		# 不设置触发器，直接执行动作
-		_apply_ability_action(context)
 
 func remove_effect() -> void:
 	if not is_active:
@@ -100,31 +102,40 @@ func remove_effect() -> void:
 	# 移除标签修改
 	_remove_tag_modifiers(target)
 
+	# 清理触发器
+	_cleanup_trigger()
 
+
+## 更新
 func update_effect(delta : float) -> void:
-    if not is_permanent and duration > 0:
-        remaining_duration -= delta
-        if remaining_duration <= 0:
-            remove_effect()
-            return
-    # 更新持续效果，如果需要
-    _update_attribute_modifiers()
+	if not is_active:
+		return
+	
+	if duration_type == DURATION_TYPE.TIMED and duration > 0:
+		remaining_duration -= delta
+		if remaining_duration <= 0:
+			remove_effect()
+			return
+
+	# 更新持续效果，如果需要
+	_update_attribute_modifiers()
+
 
 ## 添加堆叠
 func try_stack() -> bool:
-    if not can_stack or current_stacks >= stack_count:
+	if not can_stack or current_stacks >= stack_count:
 		return false
 
 	current_stacks += 1
-    if refresh_on_stack:
-        remaining_duration = duration
+	if refresh_on_stack:
+		remaining_duration = duration
 
-    # 更新效果参数
-    _update_params_with_stacks()
+	# 更新效果参数
+	_update_params_with_stacks()
 
-    # 更新修改器
-    _remove_attribute_modifiers(target)         # 先移除旧的
-    _apply_attribute_modifiers(target)          # 再应用新的
+	# 更新修改器
+	_remove_attribute_modifiers(target)         # 先移除旧的
+	_apply_attribute_modifiers(target)          # 再应用新的
 
 	return true
 
@@ -144,11 +155,11 @@ func _apply_attribute_modifiers(target) -> void:
 		GASLogger.error("target " + str(target) + " missing AbilityAttributeComponent")
 		return
 	for modifier in attribute_modifiers:
-        # 根据堆叠调整修改器的值
-        var stacked_modifier = modifier.duplicate()
-        stacked_modifier.value *= current_stacks
+		# 根据堆叠调整修改器的值
+		var stacked_modifier = modifier.duplicate()
+		stacked_modifier.value *= current_stacks
 		attribute_component.apply_attribute_modifier(stacked_modifier)
-        applied_attribute_modifiers.append(stacked_modifier)
+		applied_attribute_modifiers.append(stacked_modifier)
 
 
 ## 移除属性修改器
@@ -157,14 +168,14 @@ func _remove_attribute_modifiers(target) -> void:
 	if not attribute_component:
 		GASLogger.error("target " + str(target) + " missing AbilityAttributeComponent")
 		return
-	for modifier in applied_modifiers:
+	for modifier in applied_attribute_modifiers:
 		attribute_component.remove_attribute_modifier(modifier)
 
 
 ## 更新修改器
 ## [TODO] 这里可以处理需要随时间变化的修改器
-func _update_attribute_modifiers(target) -> void:
-    pass
+func _update_attribute_modifiers() -> void:
+	pass
 
 
 ## 应用标签修改
@@ -188,7 +199,7 @@ func _remove_tag_modifiers(target) -> void:
 func _apply_ability_action(context: AbilityEffectContext) -> void:
 	if action_tree_id.is_empty():
 		return
-    context.effect_params = current_params
+	context.effect_params = current_params
 	await AbilitySystem.action_manager.execute_action_tree(action_tree_id, context)
 
 ## 设置触发器
@@ -213,24 +224,24 @@ func _on_trigger_success(context: Dictionary) -> void:
 
 ## 更新当前参数
 func _update_params_with_stacks() -> void:
-    current_params = effect_params.duplicate(true)
+	current_params = effect_params.duplicate(true)
 
-    if current_stacks <= 1: return
+	if current_stacks <= 1: return
 
-    # 根据堆叠规则计算参数
-    for param_name in stack_param_rules:
-        var rule = stack_param_rules[param_name]
-        var base_value = effect_params.get(param_name, 0.0)
+	# 根据堆叠规则计算参数
+	for param_name in stack_param_rules:
+		var rule = stack_param_rules[param_name]
+		var base_value = effect_params.get(param_name, 0.0)
 
-        match rule.type:
-            "add":
-                current_params[param_name] = base_value + (rule.value * (current_stacks - 1))
-            "multiply":
-                current_params[param_name] = base_value * pow(rule.value, current_stacks - 1)
-            "max":
-                current_params[param_name] = maxf(base_value, rule.value)
-            "custom":
-                if rule.has(custom_func):
-                    current_params[param_name] = rule.custom_func.call(base_value, current_stacks)
-            _:
-                GASLogger.error("Invalid stack param rule type: " + rule.type)
+		match rule.type:
+			"add":
+				current_params[param_name] = base_value + (rule.value * (current_stacks - 1))
+			"multiply":
+				current_params[param_name] = base_value * pow(rule.value, current_stacks - 1)
+			"max":
+				current_params[param_name] = maxf(base_value, rule.value)
+			"custom":
+				if rule.has("custom_func"):
+					current_params[param_name] = rule.custom_func.call(base_value, current_stacks)
+			_:
+				GASLogger.error("Invalid stack param rule type: " + rule.type)

@@ -34,7 +34,7 @@ func _init():
 
 
 ## 执行
-func execute(context: AbilityContext) -> STATUS:
+func execute(context: AbilityEffectContext) -> STATUS:
 	if not enabled:
 		return STATUS.FAILURE
 
@@ -67,7 +67,7 @@ func get_action(p_action_name: StringName) -> AbilityAction:
 
 
 ## 子类中实现的执行方法
-func _execute(_context: AbilityContext) -> STATUS:
+func _execute(_context: AbilityEffectContext) -> STATUS:
 	return STATUS.SUCCESS
 
 
@@ -82,16 +82,16 @@ func _get_action(_action_name: StringName) -> AbilityAction:
 
 
 ## 获取动作描述
-func get_action_description() -> String:
+func get_action_description(context: AbilityEffectContext) -> String:
 	return ""
 
 
 ## 获取完整的行为树描述（包括所有子节点）
-func get_tree_description() -> String:
+func get_tree_description(context: AbilityEffectContext) -> String:
 	var descriptions = []
 	
 	# 获取当前节点的描述
-	var current_desc = get_action_description()
+	var current_desc = get_action_description(context)
 	if not current_desc.is_empty():
 		descriptions.append(current_desc)
 	

@@ -17,8 +17,8 @@ func clear_child() -> void:
 	child = null
 
 
-func get_action_description() -> String:
-	return child.get_action_description() if child else ""
+func get_action_description(context: AbilityEffectContext) -> String:
+	return child.get_action_description(context) if child else ""
 
 
 ## 撤销
@@ -29,4 +29,3 @@ func _revoke() -> bool:
 ## 获取子节点
 func _get_action(p_action_name: StringName) -> AbilityAction:
 	return child.get_action(p_action_name) if child else null
-

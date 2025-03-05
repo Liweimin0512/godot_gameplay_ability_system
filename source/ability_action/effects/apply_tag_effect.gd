@@ -7,7 +7,7 @@ class_name ApplyTagEffect
 var _targets : Array[Node]
 
 
-func _perform_action(context: AbilityContext) -> STATUS:
+func _perform_action(context: AbilityEffectContext) -> STATUS:
 	_targets = context.get_all_targets()
 	for target in _targets:
 		var ability_component = target.ability_component

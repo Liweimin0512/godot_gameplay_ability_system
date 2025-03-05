@@ -68,8 +68,8 @@ func get_target_group(group_name: StringName) -> Array[Node]:
 	return target_groups.get(group_name, [])
 
 # 创建副本
-func create_copy() -> AbilityContext:
-	var copy := AbilityContext.new()
+func create_copy() -> AbilityEffectContext:
+	var copy := AbilityEffectContext.new()
 	copy.ability = ability
 	copy.caster = caster
 	copy.target = target
@@ -96,8 +96,8 @@ func to_dictionary() -> Dictionary:
 		"total_targets": total_targets,
 	}
 
-static func from_dictionary(dictionary: Dictionary) -> AbilityContext:
-	var context := AbilityContext.new()
+static func from_dictionary(dictionary: Dictionary) -> AbilityEffectContext:
+	var context := AbilityEffectContext.new()
 	context.caster = dictionary.get("caster", null)
 	context.ability = dictionary.get("ability", null)
 	context.target = dictionary.get("target", null)

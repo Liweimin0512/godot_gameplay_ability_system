@@ -22,7 +22,7 @@ signal all_targets_executed
 signal all_targets_revoked
 
 
-func _execute(context: AbilityContext) -> STATUS:
+func _execute(context: AbilityEffectContext) -> STATUS:
 	var enemies = context.get_target_group(&"enemies")
 	var allies = context.get_target_group(&"allies")
 	var caster = context.caster

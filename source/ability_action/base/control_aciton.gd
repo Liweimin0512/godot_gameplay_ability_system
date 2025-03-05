@@ -25,11 +25,11 @@ func _get_action(p_action_name: StringName) -> AbilityAction:
 	return null
 
 
-func get_action_description() -> String:
+func get_action_description(context: AbilityEffectContext) -> String:
 	var descriptions : Array[String] = []
 
 	for child in children:
-		var current_desc = child.get_action_description()
+		var current_desc = child.get_action_description(context)
 		if current_desc != "":
 			descriptions.append(current_desc)
 	
