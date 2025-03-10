@@ -58,14 +58,20 @@ func update_abilities(delta: float) -> void:
 		ability.update(delta)
 
 
-
-
 #endregion
 
 #region 标签相关
 
 func has_ability_tag(tag: StringName) -> bool:
 	return _ability_tags.has(tag)
+
+
+func has_any_tags(tags: Array[StringName]) -> bool:
+	return _has_any_tags(_ability_tags, tags)
+
+
+func has_all_tags(tags: Array[StringName]) -> bool:
+	return _has_all_tags(_ability_tags, tags)
 
 
 func get_ability_tags() -> Array[StringName]:

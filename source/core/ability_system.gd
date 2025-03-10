@@ -9,12 +9,6 @@ const BASE_PATH := "res://addons/godot_gameplay_ability_system"
 ## 技能事件名前缀
 @export var ability_event_prefix: StringName = "ability"
 
-## 触发器管理器，这里直接使用CoreSystem的实现
-var trigger_manager : CoreSystem.TriggerManager:
-	get:
-		return CoreSystem.trigger_manager
-	set(_value):
-		push_error("trigger_manager is read-only")
 ## 能力效果动作管理器
 var action_manager : ActionManagerInterface:
 	get:
@@ -29,6 +23,14 @@ var presentation_manager : PresentationManager:
 			presentation_manager = PresentationManager.new()
 			add_child(presentation_manager)
 		return presentation_manager
+## 目标选择管理器
+var target_selector_manager : AbilityTargetSelectorManager:
+	get:
+		if not target_selector_manager:
+			target_selector_manager = AbilityTargetSelectorManager.new()
+			add_child(target_selector_manager)
+		return target_selector_manager
+
 ## 初始化状态
 var _initialized: bool = false
 
@@ -105,18 +107,6 @@ func create_ability_effect_instance(ability_effect_id: String) -> AbilityEffect:
 
 
 # 事件相关
-
-## 处理游戏事件
-func handle_game_event(event_name: StringName, context : Dictionary = {}) -> void:
-	trigger_manager.handle_event(_get_ability_event_name(event_name), context)
-
-## 添加触发器
-func register_trigger(trigger_type: StringName, trigger: Trigger) -> void:
-	trigger_manager.register_trigger(trigger_type, trigger)
-
-## 移除触发器
-func unregister_trigger(trigger_type: StringName, trigger: Trigger) -> void:
-	trigger_manager.unregister_trigger(trigger_type, trigger)
 
 ## 发送技能事件
 func push_ability_event(event_name: StringName, context : AbilityEffectContext = null) -> void:

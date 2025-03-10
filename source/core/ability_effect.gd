@@ -1,247 +1,270 @@
 extends Resource
 class_name AbilityEffect
 
-## 持续类型
-enum DURATION_TYPE {
-	INSTANT,    # 即时效果，执行之后立刻销毁
-	INFINITE,   # 无限持续，直到手动移除
-	TIMED,      # 有限持续，持续时间或回合数
-}
+
+# 缓存有效期
+const CACHE_DURATION : float = 0.1 # 100ms
 
 @export var effect_id : StringName
 @export var effect_tags : Array[StringName]
-@export var is_hidden: bool = false             ## 是否隐藏效果
+@export var trigger : GameplayTrigger                   					## 触发器，没有触发器则直接执行
+@export var sub_effects : Array[AbilityEffect]  					## 子效果
+@export var priority : int = 0										## 执行优先级
+@export var exclusive_tags : Array[StringName] = []					## 互斥标签
+@export var level : int = 0											## 效果等级
 
-@export_group("Stacking")                       ## 堆叠相关
-@export var can_stack : bool = false            ## 是否能堆叠
-@export var stack_count : int = 1               ## 可叠加次数
-@export var refresh_on_stack: bool = true       ## 在堆叠时刷新效果
-## 堆叠时的参数计算规则
-@export var stack_param_rules : Dictionary = {
-	# "param_name": {
-	#     "type": "add"|"multiply"|"max"|"custom",
-	#     "value": float,  # 加法或乘法的系数
-	#     "custom_func": Callable  # 自定义计算函数
-	# }
-}
-
-@export_group("Duration")                       ## 持续时间相关
-@export var duration_type : DURATION_TYPE = DURATION_TYPE.INSTANT
-@export var duration: float = 0.0               ## 持续时间（秒或回合）
-
-@export_group("Actions")                      ## 执行相关
-@export var trigger : Trigger                   ## 触发器，没有触发器则直接执行
-@export var action_tree_id: StringName = ""     ## 动作树ID
-@export var effect_params : Dictionary = {}:    ## 效果参数配置
-	set(value):
-		effect_params = value
-		_update_params_with_stacks()
-
-@export_group("Modifier")                       ## 修改相关
-@export var attribute_modifiers : Array[AbilityAttributeModifier]
-@export var tag_modifiers : Array[StringName] = []
-
+@export_group("Stacking")                       					## 堆叠相关
+@export var can_stack : bool = false            					## 是否能堆叠
+@export var stack_count : int = 1               					## 可叠加次数
+@export var refresh_duration_on_stack: bool = true     				## 堆叠时是否刷新持续时间
 
 # 运行时状态
-var source : Node   # 效果来源
-var target : Node   # 效果目标
-var current_stacks : int = 1                 ## 当前堆叠次数
-var remaining_duration : float = 0.0         ## 剩余持续时间
-var is_active : bool = false                 ## 是否激活
-var applied_attribute_modifiers : Array[AbilityAttributeModifier] = [] # 记录已经应用的属性修改器
-var current_params: Dictionary
+var is_active : bool = false                   					## 是否激活
+var current_stacks : int = 1                   					## 当前堆叠数
+# 缓存相关
+var _cached_can_execute := false								## 缓存能否执行
+var _cache_time : float = 0.0									## 缓存时间
+# 状态追踪
+var _execution_count : int = 0									## 执行次数
+var _last_execution_time : float = 0.0							## 最后执行时间
+var _is_executing : bool = false								## 是否正在执行
 
-signal stack_limit_reached                                          ## 堆叠次数达到上限
-signal stack_changed(old_value : int, new_value : int)              ## 堆叠次数变化
 signal effect_started                                               ## 效果开始
 signal effect_ended                                                 ## 效果结束
 signal effect_paused                                                ## 效果暂停
 signal effect_resumed                                               ## 效果恢复
 
+
 func _init_from_data(data: Dictionary) -> void:
-	for atr_modifier_data in data.get("attribute_modifiers", []):
-		attribute_modifiers.append(AbilityAttributeModifier.new(
-			atr_modifier_data.get("attribute_name", ""),
-			atr_modifier_data.get("modifier_type", "value"),
-			atr_modifier_data.get("value", 0.0)
-			))
 	var trigger_data : Dictionary = data.get("trigger")
 	if not trigger_data.is_empty():
-		trigger = Trigger.new(data.get("trigger", {}))
+		trigger = GameplayTrigger.new(data.get("trigger", {}))
+	for sub_effect_id in data.get("sub_effects", []):
+		var sub_effect : AbilityEffect = AbilitySystem.create_ability_effect_instance(sub_effect_id)
+		if sub_effect:
+			sub_effects.append(sub_effect)
 
 
-func apply_effect(context: AbilityEffectContext) -> void:
+## 激活
+func activate(context: AbilityEffectContext) -> void:
 	if is_active:
 		GASLogger.warning("Effect is already active")
 		return
 
 	is_active = true
-	source = context.caster
-	target = context.target
 
-	if duration_type == DURATION_TYPE.INSTANT:
-		_apply_ability_action(context)
-		remove_effect() # 即时效果直接销毁
+	# 设置触发器
+	if not _setup_trigger(context):
+		await execute(context)
+	
+	_activate(context)
+
+	for sub_effect in sub_effects:
+		await sub_effect.activate(context)
+
+
+## 执行
+func execute(context: AbilityEffectContext) -> bool:
+	if _is_executing: 
+		GASLogger.error("Effect %s is already executing" % effect_id)
+		return false
+
+	if not is_active:
+		GASLogger.warning("Effect is not active")
+		return false
+
+	if not can_execute(context):
+		return false
+
+	_is_executing = true
+	_execution_count += 1
+	_last_execution_time = Time.get_ticks_msec() / 1000.0
+
+	_before_execute(context)
+	await _execute_internal(context)
+	_after_execute(context)
+
+	_is_executing = false
+	return true
+
+
+## 更新效果
+func update(delta : float) -> void:
+	if not is_active:
 		return
 
-	_apply_attribute_modifiers(target)
-	_apply_tag_modifiers(target)
+	_update(delta)
 	
-	# 设置触发器
-	_setup_trigger()
+	# 更新子效果
+	for sub_effect in sub_effects:
+		sub_effect.update_effect(delta)
 
 
-func remove_effect() -> void:
+## 停用
+func deactivate() -> void:
 	if not is_active:
 		GASLogger.warning("Effect is not active")
 		return
 	is_active = false
-	
-	# 移除属性修改
-	_remove_attribute_modifiers(target)
-	# 移除标签修改
-	_remove_tag_modifiers(target)
+
+	_deactivate()
+	for sub_effect in sub_effects:
+		sub_effect.deactivate()
 
 	# 清理触发器
 	_cleanup_trigger()
 
 
-## 更新
-func update_effect(delta : float) -> void:
-	if not is_active:
-		return
-	
-	if duration_type == DURATION_TYPE.TIMED and duration > 0:
-		remaining_duration -= delta
-		if remaining_duration <= 0:
-			remove_effect()
-			return
-
-	# 更新持续效果，如果需要
-	_update_attribute_modifiers()
+func reset() -> void:
+	_reset()
 
 
-## 添加堆叠
+func can_execute(context : AbilityEffectContext) -> bool:
+	if not _can_execute(context):
+		return false
+
+	# 缓存检查
+	var current_time = Time.get_ticks_msec() / 1000.0
+	if current_time - _cache_time < CACHE_DURATION:
+		return _cached_can_execute
+
+	if not _can_execute(context):
+		_cached_can_execute = false
+	elif trigger:
+		_cached_can_execute = trigger.should_trigger(context.to_dictionary())
+	_cache_time = current_time
+	return _cached_can_execute
+
+
+## 尝试堆叠
 func try_stack() -> bool:
 	if not can_stack or current_stacks >= stack_count:
 		return false
-
+	
 	current_stacks += 1
-	if refresh_on_stack:
-		remaining_duration = duration
+	if refresh_duration_on_stack:
+		_refresh_duration()
 
-	# 更新效果参数
-	_update_params_with_stacks()
-
-	# 更新修改器
-	_remove_attribute_modifiers(target)         # 先移除旧的
-	_apply_attribute_modifiers(target)          # 再应用新的
-
+	_on_stack()
 	return true
 
 
 ## 移除堆叠
-func remove_stack() -> void:
-	current_stacks -= 1
-	if current_stacks < 0:
-		remove_effect()
-
-
-## 应用属性修改器
-func _apply_attribute_modifiers(target) -> void:
-	## 应用属性修改
-	var attribute_component : AbilityAttributeComponent = AbilityAttributeComponent.get_attribute_component(target)
-	if not attribute_component:
-		GASLogger.error("target " + str(target) + " missing AbilityAttributeComponent")
+func remove_stack(stack_count : int = 1) -> void:
+	current_stacks -= stack_count
+	_on_remove_stack()
+	if current_stacks <= 0:
+		deactivate()
 		return
-	for modifier in attribute_modifiers:
-		# 根据堆叠调整修改器的值
-		var stacked_modifier = modifier.duplicate()
-		stacked_modifier.value *= current_stacks
-		attribute_component.apply_attribute_modifier(stacked_modifier)
-		applied_attribute_modifiers.append(stacked_modifier)
 
 
-## 移除属性修改器
-func _remove_attribute_modifiers(target) -> void:
-	var attribute_component : AbilityAttributeComponent = AbilityAttributeComponent.get_attribute_component(target)
-	if not attribute_component:
-		GASLogger.error("target " + str(target) + " missing AbilityAttributeComponent")
-		return
-	for modifier in applied_attribute_modifiers:
-		attribute_component.remove_attribute_modifier(modifier)
+#region 标签相关
+
+## 添加标签
+func add_tag(tag: StringName) -> void:
+	effect_tags.append(tag)
 
 
-## 更新修改器
-## [TODO] 这里可以处理需要随时间变化的修改器
-func _update_attribute_modifiers() -> void:
-	pass
+## 移除标签
+func remove_tag(tag: StringName) -> void:
+	effect_tags.erase(tag)
 
 
-## 应用标签修改
-func _apply_tag_modifiers(target) -> void:
-	var ability_component : AbilityComponent = AbilityComponent.get_ability_component(target)
-	if not ability_component:
-		return
-	for tag in tag_modifiers:
-		ability_component.add_tag(tag)
+## 是否包含标签
+func has_tag(tag: StringName) -> bool:
+	return effect_tags.has(tag)
 
 
-## 移除标签修改
-func _remove_tag_modifiers(target) -> void:
-	var ability_component : AbilityComponent = AbilityComponent.get_ability_component(target)
-	if not ability_component: return
-	for tag in tag_modifiers:
-		ability_component.remove_tag(tag)
+## 是否包含标签
+func has_tags(tags: Array[StringName]) -> bool:
+	return tags.all(func(tag: StringName) -> bool: return effect_tags.has(tag))
 
+#endregion
 
-## 应用动作
-func _apply_ability_action(context: AbilityEffectContext) -> void:
-	if action_tree_id.is_empty():
-		return
-	context.effect_params = current_params
-	await AbilitySystem.action_manager.execute_action_tree(action_tree_id, context)
 
 ## 设置触发器
-func _setup_trigger() -> void:
+func _setup_trigger(context : AbilityEffectContext) -> bool:
 	if trigger:
-		trigger.trigger_success.connect(_on_trigger_success)
-		AbilitySystem.trigger_manager.register_ability_trigger(trigger, self)
+		trigger.triggered.connect(_on_trigger_triggered)
+		trigger.activate(context.to_dictionary())
+		return true
+	return false
 
 
 ## 清理触发器
 func _cleanup_trigger() -> void:
 	if trigger:
-		trigger.trigger_success.disconnect(_on_trigger_success)
-		AbilitySystem.trigger_manager.unregister_ability_trigger(trigger, self)
+		trigger.triggered.disconnect(_on_trigger_triggered)
+		trigger.deactivate()
 
 
-## 触发器成功
-func _on_trigger_success(context: Dictionary) -> void:
+## 触发器触发
+func _on_trigger_triggered(context: Dictionary) -> void:
 	if is_active: 
-		_apply_ability_action(AbilityEffectContext.from_dictionary(context))
+		execute(AbilityEffectContext.from_dictionary(context))
 
 
-## 更新当前参数
-func _update_params_with_stacks() -> void:
-	current_params = effect_params.duplicate(true)
+func _activate(context: AbilityEffectContext) -> void:
+	pass
 
-	if current_stacks <= 1: return
+func _deactivate() -> void:
+	pass
 
-	# 根据堆叠规则计算参数
-	for param_name in stack_param_rules:
-		var rule = stack_param_rules[param_name]
-		var base_value = effect_params.get(param_name, 0.0)
+func _update(delta : float) -> void:
+	pass
 
-		match rule.type:
-			"add":
-				current_params[param_name] = base_value + (rule.value * (current_stacks - 1))
-			"multiply":
-				current_params[param_name] = base_value * pow(rule.value, current_stacks - 1)
-			"max":
-				current_params[param_name] = maxf(base_value, rule.value)
-			"custom":
-				if rule.has("custom_func"):
-					current_params[param_name] = rule.custom_func.call(base_value, current_stacks)
-			_:
-				GASLogger.error("Invalid stack param rule type: " + rule.type)
+func _before_execute(context: AbilityEffectContext) -> void:
+	pass
+
+func _execute_internal(context: AbilityEffectContext) -> void:
+	pass
+
+func _after_execute(context: AbilityEffectContext) -> void:
+	pass
+
+## 堆叠时调用（由派生类实现）
+func _on_stack() -> void:
+	pass
+
+## 移除堆叠时调用（由派生类实现）
+func _on_remove_stack() -> void:
+	pass
+
+## 刷新持续时间（由派生类实现）
+func _refresh_duration() -> void:
+	pass
+
+func _can_execute(context : AbilityEffectContext) -> bool:
+	return true
+
+func _reset() -> void:
+	pass
+
+
+## 获取可选目标
+func get_available_targets(context: AbilityEffectContext) -> Array:
+	var selector = _get_target_selector()
+	if not selector: return []
+	return selector.get_available_targets(self, context)
+
+
+## 验证选择的目标，确保目标合法
+func validate_targets(targets: Array, context: AbilityEffectContext) -> bool:
+	var selector = _get_target_selector()
+	if not selector: return false
+	return selector.validate_targets(self, targets, context)
+
+
+#endregion
+
+## 获取实际执行时的目标
+func _get_actual_targets(context: AbilityEffectContext) -> Array:
+	var selector = _get_target_selector()
+	if not selector: return []
+	return selector.get_actual_targets(self, context)
+
+
+## 获取目标选择器
+## 子类可以重写这个方法返回特定的选择器
+func _get_target_selector() -> AbilityTargetSelector:
+	return null

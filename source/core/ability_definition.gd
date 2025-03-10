@@ -16,6 +16,7 @@ const DEFAULT_ACTION_NODE_PATHS: Dictionary[String, String] = {
 	"decorator_delay": "res://addons/godot_gameplay_ability_system/source/ability_action/decorators/decorator_delay.gd",
 	"decorator_probability": "res://addons/godot_gameplay_ability_system/source/ability_action/decorators/decorator_probability.gd",
 	"decorator_repeat": "res://addons/godot_gameplay_ability_system/source/ability_action/decorators/decorator_repeat.gd",
+	"condition_tags"	: "res://addons/godot_gameplay_ability_system/source/ability_action/decorators/condition_tags.gd",
 
 	# 动作节点
 	"apply_damage": "res://addons/godot_gameplay_ability_system/source/ability_action/effects/base_damage_effect.gd",
